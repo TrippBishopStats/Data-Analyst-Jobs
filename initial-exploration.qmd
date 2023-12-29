@@ -1,0 +1,268 @@
+---
+title: "Initial Exploration & Cleaning"
+author: "Tripp Bishop"
+format: html
+editor: visual
+---
+
+```{r setup}
+#| echo: false
+#| message: false
+library(tidyverse)
+library(janitor)
+library(visdat)
+library(naniar)
+```
+
+## Data Analyst Jobs Dataset
+
+In the initial phase of the analysis, it is important to import the data, take a quick look at the first few records, and then glimpse the dataset to get a better sense of its structure.
+
+```{r}
+#| message: false
+
+df_jobs <- read_csv("data/DataAnalyst.csv")
+head(df_jobs)
+```
+
+Right away we can see that we have a superfluous variable, ...1, and that at least two columns contain "-1". There is a good chance that "-1" is the NA placeholder for this dataset. This will need to be addressed after the initial exploration of the data is complete. There are a several variables that will need to be converted to factors, some nominal and some ordinal. There are also some variables with non-standard names. These should be renamed so that they are easier to work with in the code.
+
+```{r}
+glimpse(df_jobs)
+```
+
+Start by renaming the variables and removing the row id variable. It won't be necessary.
+
+```{r rename variables}
+df_jobs <- df_jobs |> clean_names() |> select(-x1)
+```
+
+## Exploring potential factors variables
+
+The `size`, `type_of_ownership`, `industry`, `sector`, and `revenue` variables are good candidates for conversion to factors. The first step is understanding how many distinct values each variable has.
+
+**size**
+
+```{r}
+df_jobs |> distinct(size)
+```
+
+There is a -1 which indicates missingness. Furthermore, the value of "Unknown" is not helpful, so it should be converted to `NA` as well to facilitate analysis.
+
+**industry**
+
+```{r}
+df_jobs |> distinct(industry) |> View()
+```
+
+There is a -1 which indicates missingness.
+
+**type_of_ownership**
+
+```{r}
+df_jobs |> distinct(type_of_ownership) |> View()
+```
+
+In addition to -1, `type_of_ownership` has a value of "Unknown". These will need to be cleaned up and converted to `NA` values.
+
+**sector**
+
+```{r}
+df_jobs |> distinct(sector) |> View()
+```
+
+In addition to -1, `sector` has a value of "Unknown". These will need to be cleaned up and converted to `NA` values.
+
+**revenue**
+
+```{r}
+df_jobs |> distinct(revenue) |> View()
+```
+
+There is no -1 value in `revenue`, but the value "Unknown / Non-Applicable" is present. This will be converted to `NA` for reasons state above.
+
+## Exploring remaining variables
+
+The remaining variables will need to be examined for missingness, although they will not be converted to factors.
+
+**founded**
+
+```{r}
+df_jobs |> distinct(founded) |> arrange(founded)
+```
+
+`founded` is a numeric variable, but does have -1 as a value.
+
+**rating**
+
+```{r}
+df_jobs |> distinct(rating) |> arrange(rating) |> View()
+```
+
+`rating` is a numeric variable that appears to have a valid range of 1 to 5. The value -1 is present and will be converted to `NA`.
+
+**location**
+
+```{r}
+df_jobs |> distinct(location) |> arrange(location)
+```
+
+`location` does not contain any "-1" values, but does contain what appear to be a few empty values that will need to be cleaned up.
+
+**headquarters**
+
+```{r}
+df_jobs |> distinct(headquarters) |> arrange(headquarters)
+```
+
+`headquarters` contains "-1" as a value as well as some white-space values.
+
+**salary_estimate**
+
+```{r}
+df_jobs |> distinct(salary_estimate) |> arrange(salary_estimate)
+```
+
+`salary_estimate` does contain "-1" as a value. Every value also ends with the string "(Glassdoor est.)". In addition to this, the field contains the range from low to high in the formation \$AK - \$BK, where A & B are 2-3 digit integers. This field should be cleaned and then split into `salary_lower_end` and `salary_upper_end` numeric variables.
+
+**company_name**
+
+```{r}
+df_jobs |> distinct(company_name) |> arrange(company_name)
+```
+
+The `company_name` field has a newline character followed by what appears to be the rating value. This should be removed. There is the value "1", this is probably a missing value.
+
+## Addressing missing values
+
+The `easy_apply` variable should be a logical field. Rather than having `NA` for FALSE values, simply set all "-1" values to FALSE and all others to TRUE. This will force the `easy_apply` to be a logical variable. Next, the -1 and "Unknown" values can also be mapped to `NA` to complete the task. We can use features of the `naniar` package to understand the missing values much better if they are all set to `NA` rather than a combination of `NA` and "Unknown".
+
+```{r}
+df_jobs <- df_jobs |> 
+  mutate(
+    easy_apply = if_else(easy_apply == "-1", FALSE, TRUE),
+  ) |> 
+  replace_with_na(df_jobs, 
+                  replace=list(
+                    salary_estimate = "-1",
+                    rating = -1,
+                    headquarters = -1,
+                    founded = -1,
+                    size = c("-1", "Unknown"),
+                    type_of_ownership = c("Unknown","-1"),
+                    industry = "-1",
+                    sector = "-1",
+                    revenue = c("-1", "Unknown / Non-Applicable"),
+                    competitors = "-1"
+                  )
+  )
+```
+
+## Cleaning variables
+
+Now that missing values have been standardised, the other data issues that have been identified can be addressed. `company_name` will have the superfluous characters removed, several factors will be created, and the `salary_estimate` data will be extracted into two new variables: `salary_lower_end` and `salary_upper_end`.
+
+The factors are quite wordy and this will impact the visualisation of data using these variables, so prior to creating factors, it will be good to simplify the values without obscuring their meaning.
+
+```{r}
+df_jobs <- df_jobs |> 
+  mutate(
+    size = str_remove(size, "\\semployees"),
+    revenue = str_remove(revenue, "\\s\\(USD\\)"),
+    revenue = str_replace(revenue, "\\sbillion", "B"),
+    revenue = str_replace(revenue, "\\smillion", "M")
+  )
+```
+
+```{r}
+df_jobs <- df_jobs |> 
+  mutate(
+    # drop the \n + rating information from the company name
+    company_name = str_replace(company_name, "\\n.+$", ""),
+    # make industry, sector, any type_of_ownership nominal factors
+    industry = as_factor(industry),
+    sector = as_factor(sector),
+    type_of_ownership = as_factor(type_of_ownership),
+    # make size and revenue ordinal factors
+    size = fct_relevel(size, 
+                       "1 to 50",
+                       "51 to 200",
+                       "201 to 500",
+                       "501 to 1000",
+                       "1001 to 5000",
+                       "5001 to 10000",
+                       "10000+"),
+    revenue = fct_relevel(revenue, 
+                       "Less than $1M",
+                       "$1 to $5M",
+                       "$5 to $10M",
+                       "$10 to $25M",
+                       "$25 to $50M",
+                       "$50 to $100M",
+                       "$100 to $500M",
+                       "$500M to $1B",
+                       "$1 to $2B",
+                       "$2 to $5B",
+                       "$5 to $10B",
+                       "$10+B")
+  ) |> 
+  # extract the salary range into two new variables
+  extract(salary_estimate, 
+          c("salary_lower_end","salary_upper_end"), 
+          "\\$(\\d{2,3})K-\\$(\\d{2,3})"
+  ) |> 
+  mutate(
+    salary_lower_end = as.numeric(salary_lower_end),
+    salary_upper_end = as.numeric(salary_upper_end)
+  )
+```
+
+## Explore missing values
+
+To begin, the `vis_dat` function from the `visdat` package is used to get a quick look at where missing values are and roughly how frequently they occur in each variable.
+
+```{r}
+vis_dat(df_jobs)
+```
+
+`competitors` has the most missing values. `revenue` and `founded` also look to have a significant percentage of missing values. Of these 3 variables, the most interesting and relevant is `revenue` and so we will explore the relationship of revenue to other variables to see if there is an underlying cause to the missingness of if it appears to be random.
+
+First, determine what percentage of the data has a missing value for `revenue`.
+
+```{r}
+pct_miss(df_jobs$revenue)
+```
+
+35% is a significant number. Are there any apparent patterns to the missingness or does it seem to be random?
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=size, y=revenue)) +
+  geom_miss_point() +
+  theme(
+    axis.text.x = element_text(
+      angle = 90
+    )
+  ) +
+  labs(
+    x = element_blank()
+  )
+```
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=type_of_ownership, y=revenue)) +
+  geom_miss_point() +
+  theme(
+    axis.text.x = element_text(
+      angle = 90
+    )
+  ) +
+  coord_flip() +
+  labs(
+    x = element_blank(),
+    y = element_blank()
+  )
+```
+
+These two plots give some indication of patterns in the missingness. Smaller organisations appear to have a higher probability of having missing data and the type of ownership also appears important.
