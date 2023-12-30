@@ -227,6 +227,28 @@ vis_dat(df_jobs)
 
 `competitors` has the most missing values. `revenue` and `founded` also look to have a significant percentage of missing values. Of these 3 variables, the most interesting and relevant is `revenue` and so we will explore the relationship of revenue to other variables to see if there is an underlying cause to the missingness of if it appears to be random.
 
+Before focusing on a specific variable, the percentage of complete observations should be determined.
+
+```{r}
+pct_complete_case(df_jobs)
+```
+
+Less than 20% of the observations are complete, but the `competitors` variable plays very big role in this.
+
+```{r}
+pct_complete(df_jobs$competitors)
+```
+
+Almost 80% of the observations have a missing value for `competitors`, so it is going to have a big influence on the percentage of complete observations.
+
+```{r}
+df_jobs |> 
+  select(-competitors) |> 
+  pct_complete_case()
+```
+
+If we exclude the variable, the number of complete observations increases to 53%.
+
 First, determine what percentage of the data has a missing value for `revenue`.
 
 ```{r}
@@ -266,3 +288,20 @@ df_jobs |>
 ```
 
 These two plots give some indication of patterns in the missingness. Smaller organisations appear to have a higher probability of having missing data and the type of ownership also appears important.
+
+```{r}
+df_jobs <- df_jobs |> 
+  select(-c(competitors, founded, headquarters))
+```
+
+## Creating additional features
+
+```{r}
+df_jobs <- df_jobs |> 
+  mutate(
+    salary_mid_point = round((salary_lower_end + salary_upper_end)/2,1)
+  ) |> 
+  extract(location,
+          c("city","state"), 
+          "^(.+), ([A-Z]{2})$")
+```
