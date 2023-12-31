@@ -12,6 +12,8 @@ library(tidyverse)
 library(janitor)
 library(visdat)
 library(naniar)
+library(gt)
+theme_set(theme_minimal())
 ```
 
 ## Data Analyst Jobs Dataset
@@ -52,7 +54,7 @@ There is a -1 which indicates missingness. Furthermore, the value of "Unknown" i
 **industry**
 
 ```{r}
-df_jobs |> distinct(industry) |> View()
+df_jobs |> distinct(industry)
 ```
 
 There is a -1 which indicates missingness.
@@ -60,7 +62,7 @@ There is a -1 which indicates missingness.
 **type_of_ownership**
 
 ```{r}
-df_jobs |> distinct(type_of_ownership) |> View()
+df_jobs |> distinct(type_of_ownership)
 ```
 
 In addition to -1, `type_of_ownership` has a value of "Unknown". These will need to be cleaned up and converted to `NA` values.
@@ -68,7 +70,7 @@ In addition to -1, `type_of_ownership` has a value of "Unknown". These will need
 **sector**
 
 ```{r}
-df_jobs |> distinct(sector) |> View()
+df_jobs |> distinct(sector)
 ```
 
 In addition to -1, `sector` has a value of "Unknown". These will need to be cleaned up and converted to `NA` values.
@@ -76,7 +78,7 @@ In addition to -1, `sector` has a value of "Unknown". These will need to be clea
 **revenue**
 
 ```{r}
-df_jobs |> distinct(revenue) |> View()
+df_jobs |> distinct(revenue)
 ```
 
 There is no -1 value in `revenue`, but the value "Unknown / Non-Applicable" is present. This will be converted to `NA` for reasons state above.
@@ -96,7 +98,7 @@ df_jobs |> distinct(founded) |> arrange(founded)
 **rating**
 
 ```{r}
-df_jobs |> distinct(rating) |> arrange(rating) |> View()
+df_jobs |> distinct(rating) |> arrange(rating)
 ```
 
 `rating` is a numeric variable that appears to have a valid range of 1 to 5. The value -1 is present and will be converted to `NA`.
@@ -271,6 +273,16 @@ df_jobs |>
   )
 ```
 
+This chart shows that most of the missingness occurs for smaller organisations and that when the `size` feature is missing from an observation, the `revenue` feature is usually missing as well.
+
+```{r}
+df_jobs |> 
+  filter(is.na(size)) |> 
+  group_by(revenue) |> 
+  count()
+  
+```
+
 ```{r}
 df_jobs |> 
   ggplot(aes(x=type_of_ownership, y=revenue)) +
@@ -289,6 +301,32 @@ df_jobs |>
 
 These two plots give some indication of patterns in the missingness. Smaller organisations appear to have a higher probability of having missing data and the type of ownership also appears important.
 
+Exploring size vs sector also indicates that
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=size, y=sector)) +
+  geom_miss_point() +
+  theme(
+    axis.text.x = element_text(
+      angle = 90
+    )
+  ) +
+  labs(
+    x = element_blank(),
+    y = element_blank()
+  )
+```
+
+There are
+
+```{r}
+df_jobs |> 
+  filter(!is.na(size) & is.na(sector)) |> 
+  group_by(size) |> 
+  count()
+```
+
 ```{r}
 df_jobs <- df_jobs |> 
   select(-c(competitors, founded, headquarters))
@@ -306,4 +344,190 @@ df_jobs <- df_jobs |>
   extract(location,
           c("city","state"), 
           "^(.+), ([A-Z]{2})$")
+```
+
+To understand how complete each job posting is, we can use the `naniar` packages `miss_case_summary` function to count the number of missing features in each posting and from this count, the completeness of each posting can be computed.
+
+```{r}
+df_miss_count <- df_jobs |> miss_case_summary() |> select(case,pct_miss)
+
+df_jobs <- df_jobs |> 
+  mutate(
+    case = row_number()
+  ) |> 
+  inner_join(df_miss_count, by="case") |> 
+  select(-case)
+
+rm(df_miss_count)
+```
+
+### Creating job attributes
+
+A review of the job titles of the postings shows that not all of the positions are for data analysts. The job postings will be filtered to keep postings that meet the following rules:
+
+* if `Data Analyst` (either case) is found in `job_title`
+* if `Data/(another term) Analyst` (either case) is found in `job_title`
+
+```{r}
+df_jobs |> 
+  distinct(job_title) |> 
+  View()
+```
+
+```{r}
+job_filter <- c("Data Analyst", "Data\\s?\\/\\s?\\w+ Analyst")
+
+df_jobs <- df_jobs |> 
+  filter(str_detect(job_title, paste(job_filter, collapse = '|')))
+```
+This reduces the number of job postings to 1677, which is 74.5% of the original postings.
+
+Now that we have eliminated job postings that are likely not data analyst positions, we can focus on determining data analyst tools are included in each posting. To do this, a set of logical features will be added, one for each tool.
+
+```{r}
+df_jobs <- df_jobs |>
+  mutate(
+    has_sql = if_else(str_detect(job_description, "\\bSQL\\b"), TRUE, FALSE),
+    has_R = if_else(str_detect(job_description, "\\bR\\b"), TRUE, FALSE),
+    has_python = if_else(str_detect(job_description, "\\b[P|p]ython\\b"), TRUE, FALSE),
+    has_tableau = if_else(str_detect(job_description, "\\b[T|t]ableau\\b"), TRUE, FALSE),
+    has_excel = if_else(str_detect(job_description, "\\b[E|e]xcel\\b"), TRUE, FALSE),
+    has_spark = if_else(str_detect(job_description, "\\b[S|s]park\\b"), TRUE, FALSE),
+    has_powerbi = if_else(str_detect(job_description, "\\b[P|p]ower\\s?BI\\b"), TRUE, FALSE),
+    has_sheets = if_else(str_detect(job_description, "\\b[G|g]oogle [S|s]heets\\b"), TRUE, FALSE)
+  )
+```
+
+## Univariate analysis
+
+**salary_mid_point**
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=salary_mid_point)) +
+  geom_histogram(binwidth = 10, colour="white") +
+  labs(
+    x="Salary mid point",
+    y="Count",
+    title="Distribution of job posting salary"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+
+```
+While the data isn't normally distributed, it is pretty close. There is a positive skew to the data. That is not surprising.
+
+There is an observation that is missing salary. Since it is a single observations, it will be dropped from the dataset.
+
+```{r}
+df_jobs <- df_jobs |> 
+  filter(!is.na(salary_mid_point))
+```
+
+**state**
+
+The plot of job postings by state does not reveal any issues with the factor level. The state codes all look correct. The distribution of jobs does raise some questions. While it is not surprising that both California and Texas have a lot of job postings, the very small number in states like Georgia is surprising. More research would need to be conducted to determine why this might be the case. The source of the data does not indicate the methods for collecting the data.
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=fct_rev(fct_infreq(state)))) +
+    geom_bar() +
+    coord_flip() +
+    labs(
+      x=element_blank(),
+      y="Job count",
+      title="Data analyst job posting count by state"
+    )
+```
+
+**size**
+
+While about 10% of the job postings do not disclose the size of the organisation, the number of job postings for each organisation size range is reasonably consistent. Both large and small organisations are looking to fill data analyst positions with no one size of organisation being dominant. This suggests that organisations of all sizes believe that data analysts are important to their success.
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=fct_rev(size))) +
+  geom_bar() +
+  coord_flip() +
+  labs(
+    x=element_blank(),
+    y="Job posting count",
+    title="Data analyst job postings by organisation size"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+```
+
+**type_of_ownership**
+
+The `type_of_ownership` suggests that the data from Glassdoor.com is not a representative sample of the population of data analyst jobs. The data are very heavily drawn from private companies. The table below shows the percentage of jobs by type of ownership, and private companies account for over half of the job postings. Public companies (21%) and `NA` (7.9%) and for the majority of the remaining listings.
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=fct_rev(fct_infreq(type_of_ownership)))) +
+  geom_bar() +
+  coord_flip() +
+  labs(
+    x=element_blank(),
+    y="Job posting count",
+    title="Data analyst job postings by type of ownership"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+```
+
+```{r}
+df_jobs |> 
+  group_by(type_of_ownership) |> 
+  summarise(
+    total = n()
+  ) |> 
+  mutate(
+    pct_total = round(total/sum(total)*100, 1)
+  ) |> 
+  arrange(desc(pct_total))
+```
+
+**sector**
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=sector)) +
+  geom_bar() +
+  coord_flip() +
+  labs(
+    x=element_blank(),
+    y="Job posting count",
+    title="Data analyst job postings by sctor",
+    caption="Glassdoor.com"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+```
+There are a few dominant sectors in this dataset and large number of observations that are missing the sector feature. The two leading sectors are Information Technology and Business Services. `NA`, Finance, and Health Care are the next largest categories.
+
+
+
+
+**pct_miss**
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=pct_miss)) +
+  geom_histogram()
+```
+
+```{r}
+df_jobs |> 
+  group_by(type_of_ownership) |> 
+  summarise(
+    count = n(),
+    med_pct_miss = round(median(pct_miss),1)
+  ) |> 
+  arrange(med_pct_miss) |> 
+  gt()
 ```
