@@ -510,8 +510,42 @@ df_jobs |>
 ```
 There are a few dominant sectors in this dataset and large number of observations that are missing the sector feature. The two leading sectors are Information Technology and Business Services. `NA`, Finance, and Health Care are the next largest categories.
 
+**rating**
 
+There are 216 job postings that are missing a `rating` value. The feature is close to normally distributed but there are spikes at the extremes. There is a very pronounced spike at 5 and to a much smaller degree at 1. This is likely a result of human psychology. If a company is highly regarded, it seems plausible that instead of rating it a 4, people rate it a 5. The effect seems much smaller when giving a company a negative rating.
+```{r}
+df_jobs |> 
+  filter(!is.na(rating)) |> 
+  ggplot(aes(x=rating)) +
+  geom_histogram(binwidth = 0.3,colour="white") +
+  labs(
+    x="Company rating",
+    y="count",
+    title="Distribution of companies by rating",
+    caption="Source: Glassdoor.com"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+```
+**salary_mid_point**
 
+```{r}
+df_jobs |> 
+  ggplot(aes(x=salary_mid_point)) +
+  geom_histogram(binwidth = 10,colour="white") +
+  labs(
+    x="Salary midpoint",
+    y="Count",
+    title="Distribution of salary midpoint for all job postings",
+    subtitle="in thousands of USD",
+    caption="Source: Glassdoor.com"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+
+```
 
 **pct_miss**
 
@@ -531,3 +565,55 @@ df_jobs |>
   arrange(med_pct_miss) |> 
   gt()
 ```
+
+## Bivariate analysis
+
+### `salary_mid_point` vs `rating`
+
+There is only a very weak positive correlation between `rating` and `salary_mid_point`, indicating that compensation isn't a significant factor in an organisation's rating. It also means that choosing an organisation because of how well rated it is will not translate into a higher salary, if there is a linear relationship between `rating` and `salary_mid_point`. There is no obvious trend, linear or nonlinear in the plot below.
+
+```{r}
+df_jobs |> 
+  filter(!is.na(rating)) |> 
+  ggplot(aes(x=rating,y=salary_mid_point)) +
+  geom_jitter() +
+  geom_smooth(method = "lm")
+```
+The correlation coefficient is quite small, but positive.
+
+```{r}
+cor(df_jobs$rating, df_jobs$salary_mid_point, use = "complete.obs")
+```
+### `salary_mid_point` vs `size`
+
+```{r}
+df_jobs |> 
+  filter(!is.na(size)) |> 
+  ggplot(aes(x=size, y=salary_mid_point, colour=size)) +
+  geom_boxplot(linewidth=1) +
+  geom_jitter(alpha=0.4) +
+  labs(
+    x="Organisation number of employees",
+    y="Salary midpoint",
+    caption = "Source: Glassdoor.com",
+    title="Distribution of salary by organisation size",
+    subtitle="salaries in USD"
+  ) +
+  theme(
+    legend.position = "none"
+  )
+```
+
+
+
+## Populare tools and technologies
+
+
+## Findings
+
+
+## Summary and recommendations
+
+
+
+
