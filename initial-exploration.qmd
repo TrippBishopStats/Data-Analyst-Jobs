@@ -296,6 +296,8 @@ df_jobs <- df_jobs |>
 
 ## Creating additional features
 
+Having a salary range for a given job is useful, but plotting ranges in large numbers will be cumbersome. To get around this problem, a salary mid-point feature can be generated for each job. In addition, to make analysis easier, the location feature will be split into two new features, `city` and `state`. This will allow for `group by` statements to be written that will allow for regional analyses to be made.
+
 ```{r}
 df_jobs <- df_jobs |> 
   mutate(
