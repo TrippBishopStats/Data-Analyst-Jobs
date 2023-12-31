@@ -586,12 +586,16 @@ cor(df_jobs$rating, df_jobs$salary_mid_point, use = "complete.obs")
 ```
 ### `salary_mid_point` vs `size`
 
+
+
+
 ```{r}
 df_jobs |> 
   filter(!is.na(size)) |> 
   ggplot(aes(x=size, y=salary_mid_point, colour=size)) +
   geom_boxplot(linewidth=1) +
   geom_jitter(alpha=0.4) +
+  scale_colour_brewer(palette = "Dark2") +
   labs(
     x="Organisation number of employees",
     y="Salary midpoint",
@@ -604,6 +608,30 @@ df_jobs |>
   )
 ```
 
+```{r}
+
+df_jobs |> 
+  filter(!is.na(type_of_ownership)) |> 
+  group_by(type_of_ownership) |> 
+  count() |> 
+  filter(n > 15) |>  
+  inner_join(df_jobs, by="type_of_ownership") |> 
+  ggplot(aes(x=type_of_ownership, y=salary_mid_point, colour=type_of_ownership)) +
+  geom_boxplot(linewidth=1) +
+  geom_jitter(alpha=0.4) +
+  scale_colour_brewer(palette = "Dark2") +
+  coord_flip() +
+  labs(
+    x=element_blank(),
+    y="Salary midpoint",
+    caption = "Source: Glassdoor.com",
+    title="Distribution of salary by ownership type",
+    subtitle="salaries in USD"
+  ) +
+  theme(
+    legend.position = "none"
+  )
+```
 
 
 ## Populare tools and technologies
