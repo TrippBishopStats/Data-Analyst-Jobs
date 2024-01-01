@@ -14,6 +14,7 @@ library(visdat)
 library(naniar)
 library(gt)
 theme_set(theme_minimal())
+source("scripts/helper-functions.R")
 ```
 
 ## Data Analyst Jobs Dataset
@@ -586,8 +587,7 @@ cor(df_jobs$rating, df_jobs$salary_mid_point, use = "complete.obs")
 ```
 ### `salary_mid_point` vs `size`
 
-
-
+Comparing boxplots of `salary_mid_point` vs `size` shows that there is not a significant difference in salaries based on organisation size.
 
 ```{r}
 df_jobs |> 
@@ -609,7 +609,27 @@ df_jobs |>
 ```
 
 ```{r}
+df_jobs |> 
+  filter(!is.na(size)) |> 
+  ggplot(aes(x=salary_mid_point)) +
+  geom_histogram(binwidth = 10) +
+  facet_wrap(~size)
+```
+We can use a general linear model to compare the `size` groups.
 
+```{r}
+df_jobs |> 
+  filter(!is.na(size)) |>
+  lm(salary_mid_point ~ size, data=_) |> 
+  summary()
+```
+This result confirms what we could see in the boxplots. There is no significant difference between the groups. The *p-value* for the test as $p=0.631$ and the estimates for all groups are small and have high *p-values*. 
+
+### `type_of_ownership` vs `salary_mid_point`
+
+As with `size`, there is not a significant difference in salary between groups.
+
+```{r}
 df_jobs |> 
   filter(!is.na(type_of_ownership)) |> 
   group_by(type_of_ownership) |> 
@@ -632,9 +652,36 @@ df_jobs |>
     legend.position = "none"
   )
 ```
-
+```{r}
+df_jobs |> 
+  filter(!is.na(type_of_ownership)) |> 
+  group_by(type_of_ownership) |> 
+  count() |> 
+  filter(n > 15) |>  
+  inner_join(df_jobs, by="type_of_ownership") |> 
+  lm(salary_mid_point~type_of_ownership,data=_) |> 
+  summary()
+```
+The is one interesting result here, that the Government group is significantly different to the others. The box plots hint at this, and the linear model confirms it at the 95% confidence level.
 
 ## Populare tools and technologies
+
+
+```{r}
+df_jobs |> 
+  summarise(
+    sql=compute_percentage(has_sql, n()),
+    R=compute_percentage(has_R, n()),
+    python=compute_percentage(has_python, n()),
+    excel=compute_percentage(has_excel, n()),
+    tableau=compute_percentage(has_tableau, n()),
+    spark=compute_percentage(has_spark, n()),
+    powerbi=compute_percentage(has_powerbi, n()),
+    sheets=compute_percentage(has_sheets, n())
+  ) |> 
+  pivot_longer(cols = everything(), names_to = "technology", values_to = "pct_of_jobs")
+```
+
 
 
 ## Findings
