@@ -20,6 +20,8 @@ default_fill_colour <- "#1f63b4"
 
 ## Data Analyst Jobs Dataset
 
+The Data Analyst Jobs dataset was produced by scraping *Glassdoor.com* data analyst job postings. The date that this was done is not known, but the covid-19 pandemic is referenced so a likely lower bound on the date is mid-2020.
+
 In the initial phase of the analysis, it is important to import the data, take a quick look at the first few records, and then glimpse the dataset to get a better sense of its structure.
 
 ```{r}
@@ -35,7 +37,7 @@ Right away we can see that we have a superfluous variable, ...1, and that at lea
 glimpse(df_jobs)
 ```
 
-Start by renaming the variables and removing the row id variable. It won't be necessary.
+Start by renaming the variables and removing the row id variabl, it won't be necessary.
 
 ```{r rename variables}
 df_jobs <- df_jobs |> clean_names() |> select(-x1)
@@ -45,7 +47,9 @@ df_jobs <- df_jobs |> clean_names() |> select(-x1)
 
 The `size`, `type_of_ownership`, `industry`, `sector`, and `revenue` variables are good candidates for conversion to factors. The first step is understanding how many distinct values each variable has.
 
-**size**
+### `size`
+
+This field contains categorical data about the size of the company listing the job.
 
 ```{r}
 df_jobs |> distinct(size)
@@ -53,15 +57,19 @@ df_jobs |> distinct(size)
 
 There is a -1 which indicates missingness. Furthermore, the value of "Unknown" is not helpful, so it should be converted to `NA` as well to facilitate analysis.
 
-**industry**
+### `industry`
+
+This field contains categorical data about the industry of the company listing the job.
 
 ```{r}
 df_jobs |> distinct(industry)
 ```
 
-There is a -1 which indicates missingness.
+There is a -1 which indicates missingness. It will be converted to `NA` during the cleaning phase.
 
-**type_of_ownership**
+### `type_of_ownership`
+
+This feature indicates the ownership model of the company listing the job.
 
 ```{r}
 df_jobs |> distinct(type_of_ownership)
@@ -69,7 +77,9 @@ df_jobs |> distinct(type_of_ownership)
 
 In addition to -1, `type_of_ownership` has a value of "Unknown". These will need to be cleaned up and converted to `NA` values.
 
-**sector**
+### `sector`
+
+`sector` is related to the `industry` feature but is more general.
 
 ```{r}
 df_jobs |> distinct(sector)
@@ -77,19 +87,21 @@ df_jobs |> distinct(sector)
 
 In addition to -1, `sector` has a value of "Unknown". These will need to be cleaned up and converted to `NA` values.
 
-**revenue**
+### `revenue`
+
+This is a categorical feature that indicates how much revenue the company listing the job has reported. The levels of this feature are not of uniform width.
 
 ```{r}
 df_jobs |> distinct(revenue)
 ```
 
-There is no -1 value in `revenue`, but the value "Unknown / Non-Applicable" is present. This will be converted to `NA` for reasons state above.
+There is no -1 value in `revenue`, but the value "Unknown / Non-Applicable" is present. This will be converted to `NA` for reasons state earlier.
 
-## Exploring remaining variables
+## Exploring remaining features
 
-The remaining variables will need to be examined for missingness, although they will not be converted to factors.
+The remaining features will need to be examined for missingness, although they will not be converted to factors.
 
-**founded**
+### `founded`
 
 ```{r}
 df_jobs |> distinct(founded) |> arrange(founded)
@@ -97,31 +109,37 @@ df_jobs |> distinct(founded) |> arrange(founded)
 
 `founded` is a numeric variable, but does have -1 as a value.
 
-**rating**
+### `rating`
+
+`rating` is a numeric variable that appears to have a valid range of 1 to 5.
 
 ```{r}
 df_jobs |> distinct(rating) |> arrange(rating)
 ```
 
-`rating` is a numeric variable that appears to have a valid range of 1 to 5. The value -1 is present and will be converted to `NA`.
+ The value -1 is present and will be converted to `NA`.
 
-**location**
+### `location`
+
+This feature indicates the city and state where the job is located. It contains two pieces of data, the city and state, so in order to make the data tidy, this field will be broken up into two new fields, `city` and `state`.
 
 ```{r}
 df_jobs |> distinct(location) |> arrange(location)
 ```
 
-`location` does not contain any "-1" values, but does contain what appear to be a few empty values that will need to be cleaned up.
+`location` does not contain any "-1" values.
 
-**headquarters**
+### `headquarters`
+
+This feature contains information about where the headquarters of the listing company is located. It will not be used in the analysis and will be dropped.
 
 ```{r}
 df_jobs |> distinct(headquarters) |> arrange(headquarters)
 ```
 
-`headquarters` contains "-1" as a value as well as some white-space values.
+### `salary_estimate`
 
-**salary_estimate**
+This feature contain the salary range of the job listing reported in thousands of dollars.
 
 ```{r}
 df_jobs |> distinct(salary_estimate) |> arrange(salary_estimate)
@@ -129,19 +147,19 @@ df_jobs |> distinct(salary_estimate) |> arrange(salary_estimate)
 
 `salary_estimate` does contain "-1" as a value. Every value also ends with the string "(Glassdoor est.)". In addition to this, the field contains the range from low to high in the formation \$AK - \$BK, where A & B are 2-3 digit integers. This field should be cleaned and then split into `salary_lower_end` and `salary_upper_end` numeric variables.
 
-**company_name**
+### `company_name`
 
 ```{r}
 df_jobs |> distinct(company_name) |> arrange(company_name)
 ```
 
-The `company_name` field has a newline character followed by what appears to be the rating value. This should be removed. There is the value "1", this is probably a missing value.
+The `company_name` feature has many values containing a newline character followed by what appears to be the rating value. This should be removed. There is a company with the name "1". This could be a mistake, but the feature will not factor into any of the analysis
 
 ## Addressing missing values
 
 The `easy_apply` variable should be a logical field. Rather than having `NA` for FALSE values, simply set all "-1" values to FALSE and all others to TRUE. This will force the `easy_apply` to be a logical variable. Next, the -1 and "Unknown" values can also be mapped to `NA` to complete the task. We can use features of the `naniar` package to understand the missing values much better if they are all set to `NA` rather than a combination of `NA` and "Unknown".
 
-```{r}
+```{r cleaning missing values}
 df_jobs <- df_jobs |> 
   mutate(
     easy_apply = if_else(easy_apply == "-1", FALSE, TRUE),
@@ -168,9 +186,11 @@ Now that missing values have been standardised, the other data issues that have 
 
 The factors are quite wordy and this will impact the visualisation of data using these variables, so prior to creating factors, it will be good to simplify the values without obscuring their meaning.
 
-```{r}
+```{r updating revenue and size categories}
 df_jobs <- df_jobs |> 
   mutate(
+    # drop the \n + rating information from the company name
+    company_name = str_replace(company_name, "\\n.+$", ""),
     size = str_remove(size, "\\semployees"),
     revenue = str_remove(revenue, "\\s\\(USD\\)"),
     revenue = str_replace(revenue, "\\sbillion", "B"),
@@ -178,11 +198,9 @@ df_jobs <- df_jobs |>
   )
 ```
 
-```{r}
+```{r }
 df_jobs <- df_jobs |> 
   mutate(
-    # drop the \n + rating information from the company name
-    company_name = str_replace(company_name, "\\n.+$", ""),
     # make industry, sector, any type_of_ownership nominal factors
     industry = as_factor(industry),
     sector = as_factor(sector),
@@ -209,15 +227,6 @@ df_jobs <- df_jobs |>
                        "$2 to $5B",
                        "$5 to $10B",
                        "$10+B")
-  ) |> 
-  # extract the salary range into two new variables
-  extract(salary_estimate, 
-          c("salary_lower_end","salary_upper_end"), 
-          "\\$(\\d{2,3})K-\\$(\\d{2,3})"
-  ) |> 
-  mutate(
-    salary_lower_end = as.numeric(salary_lower_end),
-    salary_upper_end = as.numeric(salary_upper_end)
   )
 ```
 
@@ -303,7 +312,7 @@ df_jobs |>
 
 These two plots give some indication of patterns in the missingness. Smaller organisations appear to have a higher probability of having missing data and the type of ownership also appears important.
 
-Exploring size vs sector also indicates that
+Exploring `size` vs `sector` also indicates that
 
 ```{r}
 df_jobs |> 
@@ -336,17 +345,29 @@ df_jobs <- df_jobs |>
 
 ## Creating additional features
 
-Having a salary range for a given job is useful, but plotting ranges in large numbers will be cumbersome. To get around this problem, a salary mid-point feature can be generated for each job. In addition, to make analysis easier, the location feature will be split into two new features, `city` and `state`. This will allow for `group by` statements to be written that will allow for regional analyses to be made.
+Having a salary range for a given job is useful, but plotting ranges in large numbers will be cumbersome. To get around this problem, a salary mid-point feature, `salary_mid_point` will be generated for each job posting. In addition, to make analysis easier, the location feature will be split into two new features, `city` and `state`. This will allow for `group by` statements to be written that will allow for regional analyses to be made.
 
 ```{r}
-df_jobs <- df_jobs |> 
+df_jobs <- df_jobs |>
+  # extract the salary range into two new variables
+  extract(salary_estimate, 
+          c("salary_lower_end","salary_upper_end"), 
+          "\\$(\\d{2,3})K-\\$(\\d{2,3})"
+  ) |> 
+  # convert the new fields to numeric values
   mutate(
+    salary_lower_end = as.numeric(salary_lower_end),
+    salary_upper_end = as.numeric(salary_upper_end),
     salary_mid_point = round((salary_lower_end + salary_upper_end)/2,1)
   ) |> 
-  extract(location,
-          c("city","state"), 
-          "^(.+), ([A-Z]{2})$")
+  extract(
+    location,
+    c("city","state"), 
+    "^(.+),\\s([A-Z]{2})$"
+  )
 ```
+
+## Is the following analysis really needed?
 
 To understand how complete each job posting is, we can use the `naniar` packages `miss_case_summary` function to count the number of missing features in each posting and from this count, the completeness of each posting can be computed.
 
@@ -367,13 +388,12 @@ rm(df_miss_count)
 
 A review of the job titles of the postings shows that not all of the positions are for data analysts. The job postings will be filtered to keep postings that meet the following rules:
 
-* if `Data Analyst` (either case) is found in `job_title`
-* if `Data/(another term) Analyst` (either case) is found in `job_title`
+* if `Data Analyst` (ignore case) is found in `job_title`
+* if `Data/(another term) Analyst` (ignore case) is found in `job_title`
 
 ```{r}
 df_jobs |> 
-  distinct(job_title) |> 
-  View()
+  distinct(job_title)
 ```
 
 ```{r}
@@ -382,9 +402,10 @@ job_filter <- c("Data Analyst", "Data\\s?\\/\\s?\\w+ Analyst")
 df_jobs <- df_jobs |> 
   filter(str_detect(job_title, paste(job_filter, collapse = '|')))
 ```
+
 This reduces the number of job postings to 1677, which is 74.5% of the original postings.
 
-Now that we have eliminated job postings that are likely not data analyst positions, we can focus on determining data analyst tools are included in each posting. To do this, a set of logical features will be added, one for each tool.
+Now that we have eliminated job postings that are likely not data analyst positions, we can focus on determining data analyst tools are included in each posting. To do this, a set of logical features will be added, one for each tool. The tools listed are ones that are commonly used by data analysts.
 
 ```{r}
 df_jobs <- df_jobs |>
@@ -402,7 +423,9 @@ df_jobs <- df_jobs |>
 
 ## Univariate analysis
 
-**salary_mid_point**
+Now that the data have been cleaned and new features created, an exploration of univariate data will be done on key features in the dataset. The goal is to understand how the data are distributed, if there are consistency issues, typos, or outliers that need to be investigated.
+
+### `salary_mid_point`
 
 ```{r}
 df_jobs |> 
@@ -427,7 +450,7 @@ df_jobs <- df_jobs |>
   filter(!is.na(salary_mid_point))
 ```
 
-**state**
+### `state`
 
 The plot of job postings by state does not reveal any issues with the factor level. The state codes all look correct. The distribution of jobs does raise some questions. While it is not surprising that both California and Texas have a lot of job postings, the very small number in states like Georgia is surprising. More research would need to be conducted to determine why this might be the case. The source of the data does not indicate the methods for collecting the data.
 
@@ -443,7 +466,7 @@ df_jobs |>
     )
 ```
 
-**size**
+### `size`
 
 While about 10% of the job postings do not disclose the size of the organisation, the number of job postings for each organisation size range is reasonably consistent. Both large and small organisations are looking to fill data analyst positions with no one size of organisation being dominant. This suggests that organisations of all sizes believe that data analysts are important to their success.
 
@@ -462,7 +485,7 @@ df_jobs |>
   )
 ```
 
-**type_of_ownership**
+### `type_of_ownership`
 
 The `type_of_ownership` suggests that the data from Glassdoor.com is not a representative sample of the population of data analyst jobs. The data are very heavily drawn from private companies. The table below shows the percentage of jobs by type of ownership, and private companies account for over half of the job postings. Public companies (21%) and `NA` (7.9%) and for the majority of the remaining listings.
 
@@ -493,28 +516,30 @@ df_jobs |>
   arrange(desc(pct_total))
 ```
 
-**sector**
+### `sector`
 
 ```{r}
 df_jobs |> 
-  ggplot(aes(x=sector)) +
+  filter(!is.na(sector)) |> 
+  ggplot(aes(x=fct_rev(fct_infreq(sector)))) +
   geom_bar(fill=default_fill_colour) +
   coord_flip() +
   labs(
     x=element_blank(),
     y="Job posting count",
-    title="Data analyst job postings by sector",
-    caption="Glassdoor.com"
+    title="IT and Business Services are leading sectors for data analyst positions",
+    caption="Source: Glassdoor.com"
   ) +
   theme(
     plot.title.position = "plot"
   )
 ```
-There are a few dominant sectors in this dataset and large number of observations that are missing the sector feature. The two leading sectors are Information Technology and Business Services. `NA`, Finance, and Health Care are the next largest categories.
+There are a few dominant sectors in this dataset and large number of observations that are missing the sector feature. The two leading sectors are Information Technology and Business Services. Finance and Health Care are the next largest categories.
 
-**rating**
+### `rating`
 
 There are 216 job postings that are missing a `rating` value. The feature is close to normally distributed but there are spikes at the extremes. There is a very pronounced spike at 5 and to a much smaller degree at 1. This is likely a result of human psychology. If a company is highly regarded, it seems plausible that instead of rating it a 4, people rate it a 5. The effect seems much smaller when giving a company a negative rating.
+
 ```{r}
 df_jobs |> 
   filter(!is.na(rating)) |> 
@@ -522,15 +547,15 @@ df_jobs |>
   geom_histogram(binwidth = 0.3,colour="white",fill=default_fill_colour) +
   labs(
     x="Company rating",
-    y="count",
-    title="Distribution of companies by rating",
+    y="Count",
+    title="Company ratings follow a roughly normal distrbution",
     caption="Source: Glassdoor.com"
   ) +
   theme(
     plot.title.position = "plot"
   )
 ```
-**salary_mid_point**
+### `salary_mid_point`
 
 ```{r}
 df_jobs |> 
@@ -540,7 +565,7 @@ df_jobs |>
     x="Salary midpoint",
     y="Count",
     title="Distribution of salary midpoint for all job postings",
-    subtitle="in thousands of USD",
+    subtitle="Salaries in thousands of USD",
     caption="Source: Glassdoor.com"
   ) +
   theme(
@@ -548,6 +573,8 @@ df_jobs |>
   )
 
 ```
+
+## Do we need to include this analysis??
 
 **pct_miss**
 
