@@ -1,3 +1,3 @@
 compute_percentage <- function(field,total) {
-  sum(field)/total*100
+  round(sum(field)/total*100,1)
 }

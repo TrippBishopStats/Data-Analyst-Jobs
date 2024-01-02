@@ -15,6 +15,7 @@ library(naniar)
 library(gt)
 theme_set(theme_minimal())
 source("scripts/helper-functions.R")
+default_fill_colour <- "#1f63b4"
 ```
 
 ## Data Analyst Jobs Dataset
@@ -406,7 +407,7 @@ df_jobs <- df_jobs |>
 ```{r}
 df_jobs |> 
   ggplot(aes(x=salary_mid_point)) +
-  geom_histogram(binwidth = 10, colour="white") +
+  geom_histogram(binwidth = 10, colour="white", fill=default_fill_colour) +
   labs(
     x="Salary mid point",
     y="Count",
@@ -433,7 +434,7 @@ The plot of job postings by state does not reveal any issues with the factor lev
 ```{r}
 df_jobs |> 
   ggplot(aes(x=fct_rev(fct_infreq(state)))) +
-    geom_bar() +
+    geom_bar(fill=default_fill_colour) +
     coord_flip() +
     labs(
       x=element_blank(),
@@ -449,7 +450,7 @@ While about 10% of the job postings do not disclose the size of the organisation
 ```{r}
 df_jobs |> 
   ggplot(aes(x=fct_rev(size))) +
-  geom_bar() +
+  geom_bar(fill=default_fill_colour) +
   coord_flip() +
   labs(
     x=element_blank(),
@@ -468,7 +469,7 @@ The `type_of_ownership` suggests that the data from Glassdoor.com is not a repre
 ```{r}
 df_jobs |> 
   ggplot(aes(x=fct_rev(fct_infreq(type_of_ownership)))) +
-  geom_bar() +
+  geom_bar(fill=default_fill_colour) +
   coord_flip() +
   labs(
     x=element_blank(),
@@ -497,12 +498,12 @@ df_jobs |>
 ```{r}
 df_jobs |> 
   ggplot(aes(x=sector)) +
-  geom_bar() +
+  geom_bar(fill=default_fill_colour) +
   coord_flip() +
   labs(
     x=element_blank(),
     y="Job posting count",
-    title="Data analyst job postings by sctor",
+    title="Data analyst job postings by sector",
     caption="Glassdoor.com"
   ) +
   theme(
@@ -518,7 +519,7 @@ There are 216 job postings that are missing a `rating` value. The feature is clo
 df_jobs |> 
   filter(!is.na(rating)) |> 
   ggplot(aes(x=rating)) +
-  geom_histogram(binwidth = 0.3,colour="white") +
+  geom_histogram(binwidth = 0.3,colour="white",fill=default_fill_colour) +
   labs(
     x="Company rating",
     y="count",
@@ -534,7 +535,7 @@ df_jobs |>
 ```{r}
 df_jobs |> 
   ggplot(aes(x=salary_mid_point)) +
-  geom_histogram(binwidth = 10,colour="white") +
+  geom_histogram(binwidth = 10,colour="white",fill=default_fill_colour) +
   labs(
     x="Salary midpoint",
     y="Count",
@@ -577,7 +578,7 @@ There is only a very weak positive correlation between `rating` and `salary_mid_
 df_jobs |> 
   filter(!is.na(rating)) |> 
   ggplot(aes(x=rating,y=salary_mid_point)) +
-  geom_jitter() +
+  geom_jitter(alpha=0.7) +
   geom_smooth(method = "lm")
 ```
 The correlation coefficient is quite small, but positive.
@@ -592,16 +593,15 @@ Comparing boxplots of `salary_mid_point` vs `size` shows that there is not a sig
 ```{r}
 df_jobs |> 
   filter(!is.na(size)) |> 
-  ggplot(aes(x=size, y=salary_mid_point, colour=size)) +
+  ggplot(aes(x=size, y=salary_mid_point)) +
   geom_boxplot(linewidth=1) +
   geom_jitter(alpha=0.4) +
   scale_colour_brewer(palette = "Dark2") +
   labs(
     x="Organisation number of employees",
-    y="Salary midpoint",
+    y="Salary midpoint (USD)",
     caption = "Source: Glassdoor.com",
-    title="Distribution of salary by organisation size",
-    subtitle="salaries in USD"
+    title="Organisation size has little impact on salary"
   ) +
   theme(
     legend.position = "none"
@@ -612,7 +612,7 @@ df_jobs |>
 df_jobs |> 
   filter(!is.na(size)) |> 
   ggplot(aes(x=salary_mid_point)) +
-  geom_histogram(binwidth = 10) +
+  geom_histogram(binwidth = 10, colour="white", fill=default_fill_colour) +
   facet_wrap(~size)
 ```
 We can use a general linear model to compare the `size` groups.
@@ -623,7 +623,7 @@ df_jobs |>
   lm(salary_mid_point ~ size, data=_) |> 
   summary()
 ```
-This result confirms what we could see in the boxplots. There is no significant difference between the groups. The *p-value* for the test as $p=0.631$ and the estimates for all groups are small and have high *p-values*. 
+This result confirms what we could see in the boxplots. There is no significant difference between the groups. The *p-value* for the test is $p=0.631$ and the estimates for all groups are small and have high *p-values*. 
 
 ### `type_of_ownership` vs `salary_mid_point`
 
@@ -636,16 +636,16 @@ df_jobs |>
   count() |> 
   filter(n > 15) |>  
   inner_join(df_jobs, by="type_of_ownership") |> 
-  ggplot(aes(x=type_of_ownership, y=salary_mid_point, colour=type_of_ownership)) +
-  geom_boxplot(linewidth=1) +
-  geom_jitter(alpha=0.4) +
+  ggplot(aes(x=type_of_ownership, y=salary_mid_point)) +
+  geom_jitter(alpha=0.2) +
+  geom_boxplot(linewidth=1,fill="transparent",outlier.shape = NA) +
   scale_colour_brewer(palette = "Dark2") +
   coord_flip() +
   labs(
     x=element_blank(),
     y="Salary midpoint",
     caption = "Source: Glassdoor.com",
-    title="Distribution of salary by ownership type",
+    title="Ownership type has little impact on salary",
     subtitle="salaries in USD"
   ) +
   theme(
@@ -664,24 +664,109 @@ df_jobs |>
 ```
 The is one interesting result here, that the Government group is significantly different to the others. The box plots hint at this, and the linear model confirms it at the 95% confidence level.
 
-## Populare tools and technologies
+## Popular tools and technologies
 
+An analysis of technology keyword occurrences shows that SQL is the most frequently requested technology skill. SQL appears in 64.8% of all job postings. Other popular skills are Excel, Python, Tableau, and R.
+
+```{r}
+df_da_tools <- df_jobs |> 
+  summarise(
+    SQL=compute_percentage(has_sql, n()),
+    R=compute_percentage(has_R, n()),
+    Python=compute_percentage(has_python, n()),
+    Excel=compute_percentage(has_excel, n()),
+    Tableau=compute_percentage(has_tableau, n()),
+    Spark=compute_percentage(has_spark, n()),
+    PowerBI=compute_percentage(has_powerbi, n()),
+    Sheets=compute_percentage(has_sheets, n())
+  ) |> 
+  pivot_longer(cols = everything(), names_to = "technology", values_to = "pct_of_jobs")
+
+df_da_tools |> 
+  mutate(
+    technology = fct_reorder(technology, pct_of_jobs)
+  ) |> 
+  ggplot(aes(x=technology, y=pct_of_jobs)) +
+  geom_col(fill=default_fill_colour) +
+  coord_flip() +
+  labs(
+    x=element_blank(),
+    y="Percent of all job postings",
+    title="SQL & Excel are the most requested skills",
+    subtitle="Popularity of standard data analyst tools"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+```
+
+### Do jobs requiring SQL pay more?
+
+Do job postings requiring SQL have a higher salary than those that don't? The data do not support the idea. Job posting that list SQL as a desired skill have a very similar median to those that do not. The salary range is tighter for jobs that include SQL, but there is clearly no salary advantage. There are, however, far more jobs that list SQL than do not, so it is clearly an important skill.
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=has_sql,y=salary_mid_point)) +
+  geom_jitter(alpha=0.1) +
+  geom_boxplot(linewidth=0.75, fill="transparent", outlier.shape = NA) +
+  labs(
+    x="Includes SQL",
+    y="Salary midpoint",
+    title="Comparison of job posting salaries",
+    subtitle="Salaries (USD) for jobs requiring SQL"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+  
+```
+
+### Does R or Python command more pay?
+
+The two primary coding languages used by data analysts are Python and R. These skills are requested in 497 and 351 job listings, respectively. Both languages are included in 288 job listings. Python is the more popular of the two in this dataset. One potential issue here is the bias in this dataset to private companies. R is particularly popular in the medical space and in academia. If those sectors are underrepresented in this dataset, then the results of this comparison may be misleading. 
 
 ```{r}
 df_jobs |> 
   summarise(
-    sql=compute_percentage(has_sql, n()),
-    R=compute_percentage(has_R, n()),
-    python=compute_percentage(has_python, n()),
-    excel=compute_percentage(has_excel, n()),
-    tableau=compute_percentage(has_tableau, n()),
-    spark=compute_percentage(has_spark, n()),
-    powerbi=compute_percentage(has_powerbi, n()),
-    sheets=compute_percentage(has_sheets, n())
+    R = sum(has_R),
+    Python = sum(has_python),
+    Both = sum(has_R&has_python)
   ) |> 
-  pivot_longer(cols = everything(), names_to = "technology", values_to = "pct_of_jobs")
+  pivot_longer(cols = everything(), names_to = "Language", values_to = "Jobs")
 ```
 
+Filtering out the job postings that list both languages, the salaries of R-only and Python-only jobs can be compared.
+
+```{r}
+df_jobs |> 
+  filter(xor(has_python,has_R)) |> 
+  mutate(
+    coding_lang = if_else(has_python, "Python", "R")
+  ) |> 
+  ggplot(aes(x=coding_lang,y=salary_mid_point)) +
+  geom_jitter(alpha=0.1) +
+  geom_boxplot(linewidth=0.75, fill="transparent", outlier.shape = NA) +
+  labs(
+    x="Coding language",
+    y="Salary midpoint",
+    title="Comparison of job posting salaries",
+    subtitle="Salaries (USD) for jobs requiring R or Python"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
+```
+The Python-only jobs have a noticeably higher mean salary and a wider range of salaries in general. The mean for Python-only jobs is about \$75.8K while for R-only jobs the mean is about \$65.7K
+
+```{r}
+df_jobs |> 
+  filter(xor(has_python,has_R)) |> 
+  mutate(
+    coding_lang = if_else(has_python, "Python", "R")
+  ) |> 
+  lm(salary_mid_point ~ coding_lang, data=_) |> 
+  summary()
+```
 
 
 ## Findings

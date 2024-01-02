@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Tripp Bishop">
+
+<title>Initial Exploration &amp; Cleaning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="initial-exploration_files/libs/clipboard/clipboard.min.js"></script>
+<script src="initial-exploration_files/libs/quarto-html/quarto.js"></script>
+<script src="initial-exploration_files/libs/quarto-html/popper.min.js"></script>
+<script src="initial-exploration_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="initial-exploration_files/libs/quarto-html/anchor.min.js"></script>
+<link href="initial-exploration_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="initial-exploration_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="initial-exploration_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="initial-exploration_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="initial-exploration_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Initial Exploration &amp; Cleaning</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Tripp Bishop </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="data-analyst-jobs-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="data-analyst-jobs-dataset">Data Analyst Jobs Dataset</h2>
+<p>In the initial phase of the analysis, it is important to import the data, take a quick look at the first few records, and then glimpse the dataset to get a better sense of its structure.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/DataAnalyst.csv"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_jobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 16
+   ...1 `Job Title`    `Salary Estimate` `Job Description` Rating `Company Name`
+  &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt;             &lt;chr&gt;              &lt;dbl&gt; &lt;chr&gt;         
+1     0 Data Analyst,… $37K-$66K (Glass… "Are you eager t…    3.2 "Vera Institu…
+2     1 Quality Data … $37K-$66K (Glass… "Overview\n\nPro…    3.8 "Visiting Nur…
+3     2 Senior Data A… $37K-$66K (Glass… "We’re looking f…    3.4 "Squarespace\…
+4     3 Data Analyst   $37K-$66K (Glass… "Requisition Num…    4.1 "Celerity\n4.…
+5     4 Reporting Dat… $37K-$66K (Glass… "ABOUT FANDUEL G…    3.9 "FanDuel\n3.9"
+6     5 Data Analyst   $37K-$66K (Glass… "About Cubist\nC…    3.9 "Point72\n3.9"
+# ℹ 10 more variables: Location &lt;chr&gt;, Headquarters &lt;chr&gt;, Size &lt;chr&gt;,
+#   Founded &lt;dbl&gt;, `Type of ownership` &lt;chr&gt;, Industry &lt;chr&gt;, Sector &lt;chr&gt;,
+#   Revenue &lt;chr&gt;, Competitors &lt;chr&gt;, `Easy Apply` &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p>Right away we can see that we have a superfluous variable, …1, and that at least two columns contain “-1”. There is a good chance that “-1” is the NA placeholder for this dataset. This will need to be addressed after the initial exploration of the data is complete. There are a several variables that will need to be converted to factors, some nominal and some ordinal. There are also some variables with non-standard names. These should be renamed so that they are easier to work with in the code.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df_jobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 2,253
+Columns: 16
+$ ...1                &lt;dbl&gt; 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, …
+$ `Job Title`         &lt;chr&gt; "Data Analyst, Center on Immigration and Justice (…
+$ `Salary Estimate`   &lt;chr&gt; "$37K-$66K (Glassdoor est.)", "$37K-$66K (Glassdoo…
+$ `Job Description`   &lt;chr&gt; "Are you eager to roll up your sleeves and harness…
+$ Rating              &lt;dbl&gt; 3.2, 3.8, 3.4, 4.1, 3.9, 3.9, 4.4, 3.7, 4.0, 4.4, …
+$ `Company Name`      &lt;chr&gt; "Vera Institute of Justice\n3.2", "Visiting Nurse …
+$ Location            &lt;chr&gt; "New York, NY", "New York, NY", "New York, NY", "N…
+$ Headquarters        &lt;chr&gt; "New York, NY", "New York, NY", "New York, NY", "M…
+$ Size                &lt;chr&gt; "201 to 500 employees", "10000+ employees", "1001 …
+$ Founded             &lt;dbl&gt; 1961, 1893, 2003, 2002, 2009, 2014, 2001, 1914, 18…
+$ `Type of ownership` &lt;chr&gt; "Nonprofit Organization", "Nonprofit Organization"…
+$ Industry            &lt;chr&gt; "Social Assistance", "Health Care Services &amp; Hospi…
+$ Sector              &lt;chr&gt; "Non-Profit", "Health Care", "Information Technolo…
+$ Revenue             &lt;chr&gt; "$100 to $500 million (USD)", "$2 to $5 billion (U…
+$ Competitors         &lt;chr&gt; "-1", "-1", "GoDaddy", "-1", "DraftKings", "-1", "…
+$ `Easy Apply`        &lt;chr&gt; "True", "-1", "-1", "-1", "True", "-1", "-1", "Tru…</code></pre>
+</div>
+</div>
+<p>Start by renaming the variables and removing the row id variable. It won’t be necessary.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> <span class="fu">clean_names</span>() <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>x1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="exploring-potential-factors-variables" class="level2">
+<h2 class="anchored" data-anchor-id="exploring-potential-factors-variables">Exploring potential factors variables</h2>
+<p>The <code>size</code>, <code>type_of_ownership</code>, <code>industry</code>, <code>sector</code>, and <code>revenue</code> variables are good candidates for conversion to factors. The first step is understanding how many distinct values each variable has.</p>
+<p><strong>size</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(size)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9 × 1
+  size                   
+  &lt;chr&gt;                  
+1 201 to 500 employees   
+2 10000+ employees       
+3 1001 to 5000 employees 
+4 501 to 1000 employees  
+5 5001 to 10000 employees
+6 1 to 50 employees      
+7 51 to 200 employees    
+8 Unknown                
+9 -1                     </code></pre>
+</div>
+</div>
+<p>There is a -1 which indicates missingness. Furthermore, the value of “Unknown” is not helpful, so it should be converted to <code>NA</code> as well to facilitate analysis.</p>
+<p><strong>industry</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(industry)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 89 × 1
+   industry                             
+   &lt;chr&gt;                                
+ 1 Social Assistance                    
+ 2 Health Care Services &amp; Hospitals     
+ 3 Internet                             
+ 4 IT Services                          
+ 5 Sports &amp; Recreation                  
+ 6 Investment Banking &amp; Asset Management
+ 7 Insurance Carriers                   
+ 8 Venture Capital &amp; Private Equity     
+ 9 Research &amp; Development               
+10 -1                                   
+# ℹ 79 more rows</code></pre>
+</div>
+</div>
+<p>There is a -1 which indicates missingness.</p>
+<p><strong>type_of_ownership</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(type_of_ownership)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 15 × 1
+   type_of_ownership             
+   &lt;chr&gt;                         
+ 1 Nonprofit Organization        
+ 2 Company - Private             
+ 3 Subsidiary or Business Segment
+ 4 Company - Public              
+ 5 Hospital                      
+ 6 Unknown                       
+ 7 Contract                      
+ 8 -1                            
+ 9 Government                    
+10 School / School District      
+11 Other Organization            
+12 College / University          
+13 Self-employed                 
+14 Private Practice / Firm       
+15 Franchise                     </code></pre>
+</div>
+</div>
+<p>In addition to -1, <code>type_of_ownership</code> has a value of “Unknown”. These will need to be cleaned up and converted to <code>NA</code> values.</p>
+<p><strong>sector</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(sector)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 25 × 1
+   sector                           
+   &lt;chr&gt;                            
+ 1 Non-Profit                       
+ 2 Health Care                      
+ 3 Information Technology           
+ 4 Arts, Entertainment &amp; Recreation 
+ 5 Finance                          
+ 6 Insurance                        
+ 7 Business Services                
+ 8 -1                               
+ 9 Restaurants, Bars &amp; Food Services
+10 Media                            
+# ℹ 15 more rows</code></pre>
+</div>
+</div>
+<p>In addition to -1, <code>sector</code> has a value of “Unknown”. These will need to be cleaned up and converted to <code>NA</code> values.</p>
+<p><strong>revenue</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(revenue)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 14 × 1
+   revenue                         
+   &lt;chr&gt;                           
+ 1 $100 to $500 million (USD)      
+ 2 $2 to $5 billion (USD)          
+ 3 Unknown / Non-Applicable        
+ 4 $50 to $100 million (USD)       
+ 5 $1 to $2 billion (USD)          
+ 6 $5 to $10 billion (USD)         
+ 7 $1 to $5 million (USD)          
+ 8 $25 to $50 million (USD)        
+ 9 $10+ billion (USD)              
+10 Less than $1 million (USD)      
+11 $10 to $25 million (USD)        
+12 -1                              
+13 $500 million to $1 billion (USD)
+14 $5 to $10 million (USD)         </code></pre>
+</div>
+</div>
+<p>There is no -1 value in <code>revenue</code>, but the value “Unknown / Non-Applicable” is present. This will be converted to <code>NA</code> for reasons state above.</p>
+</section>
+<section id="exploring-remaining-variables" class="level2">
+<h2 class="anchored" data-anchor-id="exploring-remaining-variables">Exploring remaining variables</h2>
+<p>The remaining variables will need to be examined for missingness, although they will not be converted to factors.</p>
+<p><strong>founded</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(founded) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(founded)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 161 × 1
+   founded
+     &lt;dbl&gt;
+ 1      -1
+ 2    1682
+ 3    1698
+ 4    1740
+ 5    1784
+ 6    1785
+ 7    1789
+ 8    1799
+ 9    1807
+10    1812
+# ℹ 151 more rows</code></pre>
+</div>
+</div>
+<p><code>founded</code> is a numeric variable, but does have -1 as a value.</p>
+<p><strong>rating</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(rating) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(rating)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 37 × 1
+   rating
+    &lt;dbl&gt;
+ 1   -1  
+ 2    1  
+ 3    1.6
+ 4    1.7
+ 5    1.8
+ 6    1.9
+ 7    2  
+ 8    2.1
+ 9    2.2
+10    2.3
+# ℹ 27 more rows</code></pre>
+</div>
+</div>
+<p><code>rating</code> is a numeric variable that appears to have a valid range of 1 to 5. The value -1 is present and will be converted to <code>NA</code>.</p>
+<p><strong>location</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(location) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(location)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 253 × 1
+   location             
+   &lt;chr&gt;                
+ 1 Addison, TX          
+ 2 Alachua, FL          
+ 3 Alameda, CA          
+ 4 Alhambra, CA         
+ 5 Allegheny West, PA   
+ 6 Allen, TX            
+ 7 American Fork, UT    
+ 8 Anaheim, CA          
+ 9 Arcadia, CA          
+10 Arlington Heights, IL
+# ℹ 243 more rows</code></pre>
+</div>
+</div>
+<p><code>location</code> does not contain any “-1” values, but does contain what appear to be a few empty values that will need to be cleaned up.</p>
+<p><strong>headquarters</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(headquarters) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(headquarters)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 483 × 1
+   headquarters            
+   &lt;chr&gt;                   
+ 1 -1                      
+ 2 Abbott Park, IL         
+ 3 Aberdeen, United Kingdom
+ 4 Abingdon, United Kingdom
+ 5 Acton, MA               
+ 6 Addison, TX             
+ 7 Albany, NY              
+ 8 Alexandria, VA          
+ 9 Alhambra, CA            
+10 Aliso Viejo, CA         
+# ℹ 473 more rows</code></pre>
+</div>
+</div>
+<p><code>headquarters</code> contains “-1” as a value as well as some white-space values.</p>
+<p><strong>salary_estimate</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(salary_estimate) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(salary_estimate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 90 × 1
+   salary_estimate             
+   &lt;chr&gt;                       
+ 1 $110K-$190K (Glassdoor est.)
+ 2 $113K-$132K (Glassdoor est.)
+ 3 $24K-$48K (Glassdoor est.)  
+ 4 $26K-$47K (Glassdoor est.)  
+ 5 $27K-$52K (Glassdoor est.)  
+ 6 $28K-$52K (Glassdoor est.)  
+ 7 $29K-$38K (Glassdoor est.)  
+ 8 $30K-$53K (Glassdoor est.)  
+ 9 $30K-$54K (Glassdoor est.)  
+10 $31K-$59K (Glassdoor est.)  
+# ℹ 80 more rows</code></pre>
+</div>
+</div>
+<p><code>salary_estimate</code> does contain “-1” as a value. Every value also ends with the string “(Glassdoor est.)”. In addition to this, the field contains the range from low to high in the formation $AK - $BK, where A &amp; B are 2-3 digit integers. This field should be cleaned and then split into <code>salary_lower_end</code> and <code>salary_upper_end</code> numeric variables.</p>
+<p><strong>company_name</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> <span class="fu">distinct</span>(company_name) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(company_name)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,514 × 1
+   company_name                    
+   &lt;chr&gt;                           
+ 1 "1"                             
+ 2 "1199SEIU Funds\n3.2"           
+ 3 "1872 Consulting\n5.0"          
+ 4 "2000 east westmoreland st llc" 
+ 5 "212 Factors"                   
+ 6 "22nd Century Staffing\n4.3"    
+ 7 "22nd Century Technologies\n3.7"
+ 8 "2U\n3.5"                       
+ 9 "360pi\n4.2"                    
+10 "451 Research\n3.3"             
+# ℹ 1,504 more rows</code></pre>
+</div>
+</div>
+<p>The <code>company_name</code> field has a newline character followed by what appears to be the rating value. This should be removed. There is the value “1”, this is probably a missing value.</p>
+</section>
+<section id="addressing-missing-values" class="level2">
+<h2 class="anchored" data-anchor-id="addressing-missing-values">Addressing missing values</h2>
+<p>The <code>easy_apply</code> variable should be a logical field. Rather than having <code>NA</code> for FALSE values, simply set all “-1” values to FALSE and all others to TRUE. This will force the <code>easy_apply</code> to be a logical variable. Next, the -1 and “Unknown” values can also be mapped to <code>NA</code> to complete the task. We can use features of the <code>naniar</code> package to understand the missing values much better if they are all set to <code>NA</code> rather than a combination of <code>NA</code> and “Unknown”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">easy_apply =</span> <span class="fu">if_else</span>(easy_apply <span class="sc">==</span> <span class="st">"-1"</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>),</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replace_with_na</span>(df_jobs, </span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">replace=</span><span class="fu">list</span>(</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">salary_estimate =</span> <span class="st">"-1"</span>,</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">rating =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>                    <span class="at">headquarters =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>                    <span class="at">founded =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>                    <span class="at">size =</span> <span class="fu">c</span>(<span class="st">"-1"</span>, <span class="st">"Unknown"</span>),</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>                    <span class="at">type_of_ownership =</span> <span class="fu">c</span>(<span class="st">"Unknown"</span>,<span class="st">"-1"</span>),</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>                    <span class="at">industry =</span> <span class="st">"-1"</span>,</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sector =</span> <span class="st">"-1"</span>,</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>                    <span class="at">revenue =</span> <span class="fu">c</span>(<span class="st">"-1"</span>, <span class="st">"Unknown / Non-Applicable"</span>),</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>                    <span class="at">competitors =</span> <span class="st">"-1"</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>                  )</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="cleaning-variables" class="level2">
+<h2 class="anchored" data-anchor-id="cleaning-variables">Cleaning variables</h2>
+<p>Now that missing values have been standardised, the other data issues that have been identified can be addressed. <code>company_name</code> will have the superfluous characters removed, several factors will be created, and the <code>salary_estimate</code> data will be extracted into two new variables: <code>salary_lower_end</code> and <code>salary_upper_end</code>.</p>
+<p>The factors are quite wordy and this will impact the visualisation of data using these variables, so prior to creating factors, it will be good to simplify the values without obscuring their meaning.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fu">str_remove</span>(size, <span class="st">"</span><span class="sc">\\</span><span class="st">semployees"</span>),</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue =</span> <span class="fu">str_remove</span>(revenue, <span class="st">"</span><span class="sc">\\</span><span class="st">s</span><span class="sc">\\</span><span class="st">(USD</span><span class="sc">\\</span><span class="st">)"</span>),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue =</span> <span class="fu">str_replace</span>(revenue, <span class="st">"</span><span class="sc">\\</span><span class="st">sbillion"</span>, <span class="st">"B"</span>),</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue =</span> <span class="fu">str_replace</span>(revenue, <span class="st">"</span><span class="sc">\\</span><span class="st">smillion"</span>, <span class="st">"M"</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># drop the \n + rating information from the company name</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">company_name =</span> <span class="fu">str_replace</span>(company_name, <span class="st">"</span><span class="sc">\\</span><span class="st">n.+$"</span>, <span class="st">""</span>),</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make industry, sector, any type_of_ownership nominal factors</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">industry =</span> <span class="fu">as_factor</span>(industry),</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sector =</span> <span class="fu">as_factor</span>(sector),</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">type_of_ownership =</span> <span class="fu">as_factor</span>(type_of_ownership),</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make size and revenue ordinal factors</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fu">fct_relevel</span>(size, </span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"1 to 50"</span>,</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"51 to 200"</span>,</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"201 to 500"</span>,</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"501 to 1000"</span>,</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"1001 to 5000"</span>,</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"5001 to 10000"</span>,</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"10000+"</span>),</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">revenue =</span> <span class="fu">fct_relevel</span>(revenue, </span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"Less than $1M"</span>,</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$1 to $5M"</span>,</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$5 to $10M"</span>,</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$10 to $25M"</span>,</span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$25 to $50M"</span>,</span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$50 to $100M"</span>,</span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$100 to $500M"</span>,</span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$500M to $1B"</span>,</span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$1 to $2B"</span>,</span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$2 to $5B"</span>,</span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$5 to $10B"</span>,</span>
+<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"$10+B"</span>)</span>
+<span id="cb30-31"><a href="#cb30-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb30-32"><a href="#cb30-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># extract the salary range into two new variables</span></span>
+<span id="cb30-33"><a href="#cb30-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract</span>(salary_estimate, </span>
+<span id="cb30-34"><a href="#cb30-34" aria-hidden="true" tabindex="-1"></a>          <span class="fu">c</span>(<span class="st">"salary_lower_end"</span>,<span class="st">"salary_upper_end"</span>), </span>
+<span id="cb30-35"><a href="#cb30-35" aria-hidden="true" tabindex="-1"></a>          <span class="st">"</span><span class="sc">\\</span><span class="st">$(</span><span class="sc">\\</span><span class="st">d{2,3})K-</span><span class="sc">\\</span><span class="st">$(</span><span class="sc">\\</span><span class="st">d{2,3})"</span></span>
+<span id="cb30-36"><a href="#cb30-36" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb30-37"><a href="#cb30-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb30-38"><a href="#cb30-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">salary_lower_end =</span> <span class="fu">as.numeric</span>(salary_lower_end),</span>
+<span id="cb30-39"><a href="#cb30-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">salary_upper_end =</span> <span class="fu">as.numeric</span>(salary_upper_end)</span>
+<span id="cb30-40"><a href="#cb30-40" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="explore-missing-values" class="level2">
+<h2 class="anchored" data-anchor-id="explore-missing-values">Explore missing values</h2>
+<p>To begin, the <code>vis_dat</code> function from the <code>visdat</code> package is used to get a quick look at where missing values are and roughly how frequently they occur in each variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vis_dat</span>(df_jobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><code>competitors</code> has the most missing values. <code>revenue</code> and <code>founded</code> also look to have a significant percentage of missing values. Of these 3 variables, the most interesting and relevant is <code>revenue</code> and so we will explore the relationship of revenue to other variables to see if there is an underlying cause to the missingness of if it appears to be random.</p>
+<p>Before focusing on a specific variable, the percentage of complete observations should be determined.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pct_complete_case</span>(df_jobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 19.30759</code></pre>
+</div>
+</div>
+<p>Less than 20% of the observations are complete, but the <code>competitors</code> variable plays very big role in this.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pct_complete</span>(df_jobs<span class="sc">$</span>competitors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 23.12472</code></pre>
+</div>
+</div>
+<p>Almost 80% of the observations have a missing value for <code>competitors</code>, so it is going to have a big influence on the percentage of complete observations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>competitors) <span class="sc">|&gt;</span> </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pct_complete_case</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 53.48424</code></pre>
+</div>
+</div>
+<p>If we exclude the variable, the number of complete observations increases to 53%.</p>
+<p>First, determine what percentage of the data has a missing value for <code>revenue</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pct_miss</span>(df_jobs<span class="sc">$</span>revenue)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 34.53174</code></pre>
+</div>
+</div>
+<p>35% is a significant number. Are there any apparent patterns to the missingness or does it seem to be random?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>size, <span class="at">y=</span>revenue)) <span class="sc">+</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_miss_point</span>() <span class="sc">+</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">angle =</span> <span class="dv">90</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This chart shows that most of the missingness occurs for smaller organisations and that when the <code>size</code> feature is missing from an observation, the <code>revenue</code> feature is usually missing as well.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(size)) <span class="sc">|&gt;</span> </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(revenue) <span class="sc">|&gt;</span> </span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+# Groups:   revenue [3]
+  revenue           n
+  &lt;fct&gt;         &lt;int&gt;
+1 Less than $1M     2
+2 $5 to $10M        1
+3 &lt;NA&gt;            202</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>type_of_ownership, <span class="at">y=</span>revenue)) <span class="sc">+</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_miss_point</span>() <span class="sc">+</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">angle =</span> <span class="dv">90</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>These two plots give some indication of patterns in the missingness. Smaller organisations appear to have a higher probability of having missing data and the type of ownership also appears important.</p>
+<p>Exploring size vs sector also indicates that</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>size, <span class="at">y=</span>sector)) <span class="sc">+</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_miss_point</span>() <span class="sc">+</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">angle =</span> <span class="dv">90</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There are</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(size) <span class="sc">&amp;</span> <span class="fu">is.na</span>(sector)) <span class="sc">|&gt;</span> </span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(size) <span class="sc">|&gt;</span> </span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 2
+# Groups:   size [7]
+  size              n
+  &lt;fct&gt;         &lt;int&gt;
+1 1 to 50          85
+2 51 to 200        39
+3 201 to 500       14
+4 501 to 1000       5
+5 1001 to 5000      6
+6 5001 to 10000     1
+7 10000+            6</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(competitors, founded, headquarters))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="creating-additional-features" class="level2">
+<h2 class="anchored" data-anchor-id="creating-additional-features">Creating additional features</h2>
+<p>Having a salary range for a given job is useful, but plotting ranges in large numbers will be cumbersome. To get around this problem, a salary mid-point feature can be generated for each job. In addition, to make analysis easier, the location feature will be split into two new features, <code>city</code> and <code>state</code>. This will allow for <code>group by</code> statements to be written that will allow for regional analyses to be made.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">salary_mid_point =</span> <span class="fu">round</span>((salary_lower_end <span class="sc">+</span> salary_upper_end)<span class="sc">/</span><span class="dv">2</span>,<span class="dv">1</span>)</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract</span>(location,</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>          <span class="fu">c</span>(<span class="st">"city"</span>,<span class="st">"state"</span>), </span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>          <span class="st">"^(.+), ([A-Z]{2})$"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To understand how complete each job posting is, we can use the <code>naniar</code> packages <code>miss_case_summary</code> function to count the number of missing features in each posting and from this count, the completeness of each posting can be computed.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>df_miss_count <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> <span class="fu">miss_case_summary</span>() <span class="sc">|&gt;</span> <span class="fu">select</span>(case,pct_miss)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">case =</span> <span class="fu">row_number</span>()</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(df_miss_count, <span class="at">by=</span><span class="st">"case"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>case)</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(df_miss_count)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="creating-job-attributes" class="level3">
+<h3 class="anchored" data-anchor-id="creating-job-attributes">Creating job attributes</h3>
+<p>A review of the job titles of the postings shows that not all of the positions are for data analysts. The job postings will be filtered to keep postings that meet the following rules:</p>
+<ul>
+<li>if <code>Data Analyst</code> (either case) is found in <code>job_title</code></li>
+<li>if <code>Data/(another term) Analyst</code> (either case) is found in <code>job_title</code></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(job_title) <span class="sc">|&gt;</span> </span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">View</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>job_filter <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Data Analyst"</span>, <span class="st">"Data</span><span class="sc">\\</span><span class="st">s?</span><span class="sc">\\</span><span class="st">/</span><span class="sc">\\</span><span class="st">s?</span><span class="sc">\\</span><span class="st">w+ Analyst"</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(job_title, <span class="fu">paste</span>(job_filter, <span class="at">collapse =</span> <span class="st">'|'</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This reduces the number of job postings to 1677, which is 74.5% of the original postings.</p>
+<p>Now that we have eliminated job postings that are likely not data analyst positions, we can focus on determining data analyst tools are included in each posting. To do this, a set of logical features will be added, one for each tool.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">has_sql =</span> <span class="fu">if_else</span>(<span class="fu">str_detect</span>(job_description, <span class="st">"</span><span class="sc">\\</span><span class="st">bSQL</span><span class="sc">\\</span><span class="st">b"</span>), <span class="cn">TRUE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">has_R =</span> <span class="fu">if_else</span>(<span class="fu">str_detect</span>(job_description, <span class="st">"</span><span class="sc">\\</span><span class="st">bR</span><span class="sc">\\</span><span class="st">b"</span>), <span class="cn">TRUE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">has_python =</span> <span class="fu">if_else</span>(<span class="fu">str_detect</span>(job_description, <span class="st">"</span><span class="sc">\\</span><span class="st">b[P|p]ython</span><span class="sc">\\</span><span class="st">b"</span>), <span class="cn">TRUE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">has_tableau =</span> <span class="fu">if_else</span>(<span class="fu">str_detect</span>(job_description, <span class="st">"</span><span class="sc">\\</span><span class="st">b[T|t]ableau</span><span class="sc">\\</span><span class="st">b"</span>), <span class="cn">TRUE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">has_excel =</span> <span class="fu">if_else</span>(<span class="fu">str_detect</span>(job_description, <span class="st">"</span><span class="sc">\\</span><span class="st">b[E|e]xcel</span><span class="sc">\\</span><span class="st">b"</span>), <span class="cn">TRUE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">has_spark =</span> <span class="fu">if_else</span>(<span class="fu">str_detect</span>(job_description, <span class="st">"</span><span class="sc">\\</span><span class="st">b[S|s]park</span><span class="sc">\\</span><span class="st">b"</span>), <span class="cn">TRUE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">has_powerbi =</span> <span class="fu">if_else</span>(<span class="fu">str_detect</span>(job_description, <span class="st">"</span><span class="sc">\\</span><span class="st">b[P|p]ower</span><span class="sc">\\</span><span class="st">s?BI</span><span class="sc">\\</span><span class="st">b"</span>), <span class="cn">TRUE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">has_sheets =</span> <span class="fu">if_else</span>(<span class="fu">str_detect</span>(job_description, <span class="st">"</span><span class="sc">\\</span><span class="st">b[G|g]oogle [S|s]heets</span><span class="sc">\\</span><span class="st">b"</span>), <span class="cn">TRUE</span>, <span class="cn">FALSE</span>)</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="univariate-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="univariate-analysis">Univariate analysis</h2>
+<p><strong>salary_mid_point</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>salary_mid_point)) <span class="sc">+</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">10</span>, <span class="at">colour=</span><span class="st">"white"</span>, <span class="at">fill=</span>default_fill_colour) <span class="sc">+</span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">"Salary mid point"</span>,</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Count"</span>,</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Distribution of job posting salary"</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>While the data isn’t normally distributed, it is pretty close. There is a positive skew to the data. That is not surprising.</p>
+<p>There is an observation that is missing salary. Since it is a single observations, it will be dropped from the dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(salary_mid_point))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>state</strong></p>
+<p>The plot of job postings by state does not reveal any issues with the factor level. The state codes all look correct. The distribution of jobs does raise some questions. While it is not surprising that both California and Texas have a lot of job postings, the very small number in states like Georgia is surprising. More research would need to be conducted to determine why this might be the case. The source of the data does not indicate the methods for collecting the data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">fct_rev</span>(<span class="fu">fct_infreq</span>(state)))) <span class="sc">+</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">fill=</span>default_fill_colour) <span class="sc">+</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">y=</span><span class="st">"Job count"</span>,</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">title=</span><span class="st">"Data analyst job posting count by state"</span></span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>size</strong></p>
+<p>While about 10% of the job postings do not disclose the size of the organisation, the number of job postings for each organisation size range is reasonably consistent. Both large and small organisations are looking to fill data analyst positions with no one size of organisation being dominant. This suggests that organisations of all sizes believe that data analysts are important to their success.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">fct_rev</span>(size))) <span class="sc">+</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill=</span>default_fill_colour) <span class="sc">+</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Job posting count"</span>,</span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Data analyst job postings by organisation size"</span></span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>type_of_ownership</strong></p>
+<p>The <code>type_of_ownership</code> suggests that the data from Glassdoor.com is not a representative sample of the population of data analyst jobs. The data are very heavily drawn from private companies. The table below shows the percentage of jobs by type of ownership, and private companies account for over half of the job postings. Public companies (21%) and <code>NA</code> (7.9%) and for the majority of the remaining listings.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">fct_rev</span>(<span class="fu">fct_infreq</span>(type_of_ownership)))) <span class="sc">+</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill=</span>default_fill_colour) <span class="sc">+</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Job posting count"</span>,</span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Data analyst job postings by type of ownership"</span></span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(type_of_ownership) <span class="sc">|&gt;</span> </span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">total =</span> <span class="fu">n</span>()</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">pct_total =</span> <span class="fu">round</span>(total<span class="sc">/</span><span class="fu">sum</span>(total)<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pct_total))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 14 × 3
+   type_of_ownership              total pct_total
+   &lt;fct&gt;                          &lt;int&gt;     &lt;dbl&gt;
+ 1 Company - Private                968      58.3
+ 2 Company - Public                 303      18.2
+ 3 &lt;NA&gt;                             140       8.4
+ 4 Nonprofit Organization            88       5.3
+ 5 Subsidiary or Business Segment    68       4.1
+ 6 Government                        25       1.5
+ 7 College / University              24       1.4
+ 8 Hospital                          11       0.7
+ 9 Contract                           9       0.5
+10 Other Organization                 8       0.5
+11 School / School District           7       0.4
+12 Private Practice / Firm            6       0.4
+13 Self-employed                      2       0.1
+14 Franchise                          2       0.1</code></pre>
+</div>
+</div>
+<p><strong>sector</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>sector)) <span class="sc">+</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill=</span>default_fill_colour) <span class="sc">+</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Job posting count"</span>,</span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Data analyst job postings by sector"</span>,</span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption=</span><span class="st">"Glassdoor.com"</span></span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb60-12"><a href="#cb60-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb60-13"><a href="#cb60-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There are a few dominant sectors in this dataset and large number of observations that are missing the sector feature. The two leading sectors are Information Technology and Business Services. <code>NA</code>, Finance, and Health Care are the next largest categories.</p>
+<p><strong>rating</strong></p>
+<p>There are 216 job postings that are missing a <code>rating</code> value. The feature is close to normally distributed but there are spikes at the extremes. There is a very pronounced spike at 5 and to a much smaller degree at 1. This is likely a result of human psychology. If a company is highly regarded, it seems plausible that instead of rating it a 4, people rate it a 5. The effect seems much smaller when giving a company a negative rating.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(rating)) <span class="sc">|&gt;</span> </span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>rating)) <span class="sc">+</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.3</span>,<span class="at">colour=</span><span class="st">"white"</span>,<span class="at">fill=</span>default_fill_colour) <span class="sc">+</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">"Company rating"</span>,</span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"count"</span>,</span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Distribution of companies by rating"</span>,</span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption=</span><span class="st">"Source: Glassdoor.com"</span></span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb61-11"><a href="#cb61-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb61-12"><a href="#cb61-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb61-13"><a href="#cb61-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>salary_mid_point</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>salary_mid_point)) <span class="sc">+</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">10</span>,<span class="at">colour=</span><span class="st">"white"</span>,<span class="at">fill=</span>default_fill_colour) <span class="sc">+</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">"Salary midpoint"</span>,</span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Count"</span>,</span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Distribution of salary midpoint for all job postings"</span>,</span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle=</span><span class="st">"in thousands of USD"</span>,</span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption=</span><span class="st">"Source: Glassdoor.com"</span></span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>pct_miss</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>pct_miss)) <span class="sc">+</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(type_of_ownership) <span class="sc">|&gt;</span> </span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count =</span> <span class="fu">n</span>(),</span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">med_pct_miss =</span> <span class="fu">round</span>(<span class="fu">median</span>(pct_miss),<span class="dv">1</span>)</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(med_pct_miss) <span class="sc">|&gt;</span> </span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div id="ybuulwbaqi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ybuulwbaqi table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ybuulwbaqi thead, #ybuulwbaqi tbody, #ybuulwbaqi tfoot, #ybuulwbaqi tr, #ybuulwbaqi td, #ybuulwbaqi th {
+  border-style: none;
+}
+
+#ybuulwbaqi p {
+  margin: 0;
+  padding: 0;
+}
+
+#ybuulwbaqi .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ybuulwbaqi .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ybuulwbaqi .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ybuulwbaqi .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ybuulwbaqi .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ybuulwbaqi .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ybuulwbaqi .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ybuulwbaqi .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ybuulwbaqi .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ybuulwbaqi .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ybuulwbaqi .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ybuulwbaqi .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ybuulwbaqi .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ybuulwbaqi .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ybuulwbaqi .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ybuulwbaqi .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ybuulwbaqi .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ybuulwbaqi .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ybuulwbaqi .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ybuulwbaqi .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ybuulwbaqi .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ybuulwbaqi .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ybuulwbaqi .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ybuulwbaqi .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ybuulwbaqi .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ybuulwbaqi .gt_left {
+  text-align: left;
+}
+
+#ybuulwbaqi .gt_center {
+  text-align: center;
+}
+
+#ybuulwbaqi .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ybuulwbaqi .gt_font_normal {
+  font-weight: normal;
+}
+
+#ybuulwbaqi .gt_font_bold {
+  font-weight: bold;
+}
+
+#ybuulwbaqi .gt_font_italic {
+  font-style: italic;
+}
+
+#ybuulwbaqi .gt_super {
+  font-size: 65%;
+}
+
+#ybuulwbaqi .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ybuulwbaqi .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ybuulwbaqi .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ybuulwbaqi .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ybuulwbaqi .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ybuulwbaqi .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ybuulwbaqi .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="type_of_ownership">type_of_ownership</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="count">count</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="med_pct_miss">med_pct_miss</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Nonprofit Organization</td>
+<td headers="count" class="gt_row gt_right">88</td>
+<td headers="med_pct_miss" class="gt_row gt_right">0.0</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Company - Private</td>
+<td headers="count" class="gt_row gt_right">968</td>
+<td headers="med_pct_miss" class="gt_row gt_right">0.0</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Subsidiary or Business Segment</td>
+<td headers="count" class="gt_row gt_right">68</td>
+<td headers="med_pct_miss" class="gt_row gt_right">0.0</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Company - Public</td>
+<td headers="count" class="gt_row gt_right">303</td>
+<td headers="med_pct_miss" class="gt_row gt_right">0.0</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Hospital</td>
+<td headers="count" class="gt_row gt_right">11</td>
+<td headers="med_pct_miss" class="gt_row gt_right">0.0</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Private Practice / Firm</td>
+<td headers="count" class="gt_row gt_right">6</td>
+<td headers="med_pct_miss" class="gt_row gt_right">0.0</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Franchise</td>
+<td headers="count" class="gt_row gt_right">2</td>
+<td headers="med_pct_miss" class="gt_row gt_right">3.3</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Contract</td>
+<td headers="count" class="gt_row gt_right">9</td>
+<td headers="med_pct_miss" class="gt_row gt_right">6.7</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Government</td>
+<td headers="count" class="gt_row gt_right">25</td>
+<td headers="med_pct_miss" class="gt_row gt_right">6.7</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">School / School District</td>
+<td headers="count" class="gt_row gt_right">7</td>
+<td headers="med_pct_miss" class="gt_row gt_right">6.7</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">College / University</td>
+<td headers="count" class="gt_row gt_right">24</td>
+<td headers="med_pct_miss" class="gt_row gt_right">6.7</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Self-employed</td>
+<td headers="count" class="gt_row gt_right">2</td>
+<td headers="med_pct_miss" class="gt_row gt_right">6.7</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">Other Organization</td>
+<td headers="count" class="gt_row gt_right">8</td>
+<td headers="med_pct_miss" class="gt_row gt_right">10.0</td></tr>
+    <tr><td headers="type_of_ownership" class="gt_row gt_center">NA</td>
+<td headers="count" class="gt_row gt_right">140</td>
+<td headers="med_pct_miss" class="gt_row gt_right">40.0</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="bivariate-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="bivariate-analysis">Bivariate analysis</h2>
+<section id="salary_mid_point-vs-rating" class="level3">
+<h3 class="anchored" data-anchor-id="salary_mid_point-vs-rating"><code>salary_mid_point</code> vs <code>rating</code></h3>
+<p>There is only a very weak positive correlation between <code>rating</code> and <code>salary_mid_point</code>, indicating that compensation isn’t a significant factor in an organisation’s rating. It also means that choosing an organisation because of how well rated it is will not translate into a higher salary, if there is a linear relationship between <code>rating</code> and <code>salary_mid_point</code>. There is no obvious trend, linear or nonlinear in the plot below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(rating)) <span class="sc">|&gt;</span> </span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>rating,<span class="at">y=</span>salary_mid_point)) <span class="sc">+</span></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">alpha=</span><span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The correlation coefficient is quite small, but positive.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(df_jobs<span class="sc">$</span>rating, df_jobs<span class="sc">$</span>salary_mid_point, <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.05278093</code></pre>
+</div>
+</div>
+</section>
+<section id="salary_mid_point-vs-size" class="level3">
+<h3 class="anchored" data-anchor-id="salary_mid_point-vs-size"><code>salary_mid_point</code> vs <code>size</code></h3>
+<p>Comparing boxplots of <code>salary_mid_point</code> vs <code>size</code> shows that there is not a significant difference in salaries based on organisation size.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(size)) <span class="sc">|&gt;</span> </span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>size, <span class="at">y=</span>salary_mid_point, <span class="at">colour=</span>size)) <span class="sc">+</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">alpha=</span><span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_brewer</span>(<span class="at">palette =</span> <span class="st">"Dark2"</span>) <span class="sc">+</span></span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">"Organisation number of employees"</span>,</span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Salary midpoint"</span>,</span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Source: Glassdoor.com"</span>,</span>
+<span id="cb70-11"><a href="#cb70-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Distribution of salary by organisation size"</span>,</span>
+<span id="cb70-12"><a href="#cb70-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle=</span><span class="st">"salaries in USD"</span></span>
+<span id="cb70-13"><a href="#cb70-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb70-14"><a href="#cb70-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb70-15"><a href="#cb70-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span></span>
+<span id="cb70-16"><a href="#cb70-16" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-46-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(size)) <span class="sc">|&gt;</span> </span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>salary_mid_point)) <span class="sc">+</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">10</span>, <span class="at">colour=</span><span class="st">"white"</span>, <span class="at">fill=</span>default_fill_colour) <span class="sc">+</span></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>size)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can use a general linear model to compare the <code>size</code> groups.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(size)) <span class="sc">|&gt;</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(salary_mid_point <span class="sc">~</span> size, <span class="at">data=</span>_) <span class="sc">|&gt;</span> </span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = salary_mid_point ~ size, data = filter(df_jobs, 
+    !is.na(size)))
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-41.290 -15.596  -3.596   8.436  79.703 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)        72.0637     1.4924  48.288   &lt;2e-16 ***
+size51 to 200      -0.4681     2.0006  -0.234    0.815    
+size201 to 500     -0.2366     2.3327  -0.101    0.919    
+size501 to 1000     2.7261     2.4525   1.112    0.267    
+size1001 to 5000    1.2910     2.1289   0.606    0.544    
+size5001 to 10000   0.8448     3.2562   0.259    0.795    
+size10000+         -1.7667     2.1963  -0.804    0.421    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 24.39 on 1495 degrees of freedom
+Multiple R-squared:  0.002709,  Adjusted R-squared:  -0.001293 
+F-statistic: 0.6769 on 6 and 1495 DF,  p-value: 0.6684</code></pre>
+</div>
+</div>
+<p>This result confirms what we could see in the boxplots. There is no significant difference between the groups. The <em>p-value</em> for the test as <span class="math inline">\(p=0.631\)</span> and the estimates for all groups are small and have high <em>p-values</em>.</p>
+</section>
+<section id="type_of_ownership-vs-salary_mid_point" class="level3">
+<h3 class="anchored" data-anchor-id="type_of_ownership-vs-salary_mid_point"><code>type_of_ownership</code> vs <code>salary_mid_point</code></h3>
+<p>As with <code>size</code>, there is not a significant difference in salary between groups.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(type_of_ownership)) <span class="sc">|&gt;</span> </span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(type_of_ownership) <span class="sc">|&gt;</span> </span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">15</span>) <span class="sc">|&gt;</span>  </span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(df_jobs, <span class="at">by=</span><span class="st">"type_of_ownership"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>type_of_ownership, <span class="at">y=</span>salary_mid_point, <span class="at">colour=</span>type_of_ownership)) <span class="sc">+</span></span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">linewidth=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">alpha=</span><span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_brewer</span>(<span class="at">palette =</span> <span class="st">"Dark2"</span>) <span class="sc">+</span></span>
+<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb74-12"><a href="#cb74-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Salary midpoint"</span>,</span>
+<span id="cb74-15"><a href="#cb74-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Source: Glassdoor.com"</span>,</span>
+<span id="cb74-16"><a href="#cb74-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Distribution of salary by ownership type"</span>,</span>
+<span id="cb74-17"><a href="#cb74-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle=</span><span class="st">"salaries in USD"</span></span>
+<span id="cb74-18"><a href="#cb74-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb74-19"><a href="#cb74-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb74-20"><a href="#cb74-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span></span>
+<span id="cb74-21"><a href="#cb74-21" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-49-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(type_of_ownership)) <span class="sc">|&gt;</span> </span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(type_of_ownership) <span class="sc">|&gt;</span> </span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">15</span>) <span class="sc">|&gt;</span>  </span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(df_jobs, <span class="at">by=</span><span class="st">"type_of_ownership"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(salary_mid_point<span class="sc">~</span>type_of_ownership,<span class="at">data=</span>_) <span class="sc">|&gt;</span> </span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = salary_mid_point ~ type_of_ownership, data = inner_join(filter(count(group_by(filter(df_jobs, 
+    !is.na(type_of_ownership)), type_of_ownership)), n &gt; 15), 
+    df_jobs, by = "type_of_ownership"))
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-40.208 -14.708  -3.728   7.962  78.272 
+
+Coefficients:
+                                                Estimate Std. Error t value
+(Intercept)                                      70.3466     2.5994  27.062
+type_of_ownershipCompany - Private                2.1916     2.7150   0.807
+type_of_ownershipSubsidiary or Business Segment   1.3814     3.9372   0.351
+type_of_ownershipCompany - Public                 3.3613     2.9529   1.138
+type_of_ownershipGovernment                     -12.7866     5.5264  -2.314
+type_of_ownershipCollege / University             0.6742     5.6154   0.120
+                                                Pr(&gt;|t|)    
+(Intercept)                                       &lt;2e-16 ***
+type_of_ownershipCompany - Private                0.4197    
+type_of_ownershipSubsidiary or Business Segment   0.7258    
+type_of_ownershipCompany - Public                 0.2552    
+type_of_ownershipGovernment                       0.0208 *  
+type_of_ownershipCollege / University             0.9044    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 24.38 on 1470 degrees of freedom
+Multiple R-squared:  0.007362,  Adjusted R-squared:  0.003986 
+F-statistic: 2.181 on 5 and 1470 DF,  p-value: 0.05394</code></pre>
+</div>
+</div>
+<p>The is one interesting result here, that the Government group is significantly different to the others. The box plots hint at this, and the linear model confirms it at the 95% confidence level.</p>
+</section>
+</section>
+<section id="populare-tools-and-technologies" class="level2">
+<h2 class="anchored" data-anchor-id="populare-tools-and-technologies">Populare tools and technologies</h2>
+<p>An analysis of technology keyword occurrences shows that SQL is the most frequently requested technology skill. SQL appears in 64.8% of all job postings. Other popular skills are Excel, Python, Tableau, and R.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>df_da_tools <span class="ot">&lt;-</span> df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">SQL=</span><span class="fu">compute_percentage</span>(has_sql, <span class="fu">n</span>()),</span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">R=</span><span class="fu">compute_percentage</span>(has_R, <span class="fu">n</span>()),</span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Python=</span><span class="fu">compute_percentage</span>(has_python, <span class="fu">n</span>()),</span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Excel=</span><span class="fu">compute_percentage</span>(has_excel, <span class="fu">n</span>()),</span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Tableau=</span><span class="fu">compute_percentage</span>(has_tableau, <span class="fu">n</span>()),</span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Spark=</span><span class="fu">compute_percentage</span>(has_spark, <span class="fu">n</span>()),</span>
+<span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">PowerBI=</span><span class="fu">compute_percentage</span>(has_powerbi, <span class="fu">n</span>()),</span>
+<span id="cb77-10"><a href="#cb77-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sheets=</span><span class="fu">compute_percentage</span>(has_sheets, <span class="fu">n</span>())</span>
+<span id="cb77-11"><a href="#cb77-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb77-12"><a href="#cb77-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"technology"</span>, <span class="at">values_to =</span> <span class="st">"pct_of_jobs"</span>)</span>
+<span id="cb77-13"><a href="#cb77-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-14"><a href="#cb77-14" aria-hidden="true" tabindex="-1"></a>df_da_tools <span class="sc">|&gt;</span> </span>
+<span id="cb77-15"><a href="#cb77-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb77-16"><a href="#cb77-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">technology =</span> <span class="fu">fct_reorder</span>(technology, pct_of_jobs)</span>
+<span id="cb77-17"><a href="#cb77-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb77-18"><a href="#cb77-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>technology, <span class="at">y=</span>pct_of_jobs)) <span class="sc">+</span></span>
+<span id="cb77-19"><a href="#cb77-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill=</span>default_fill_colour) <span class="sc">+</span></span>
+<span id="cb77-20"><a href="#cb77-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb77-21"><a href="#cb77-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb77-22"><a href="#cb77-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb77-23"><a href="#cb77-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Percent of all job postings"</span>,</span>
+<span id="cb77-24"><a href="#cb77-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Technology skill references"</span>,</span>
+<span id="cb77-25"><a href="#cb77-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle=</span><span class="st">"Percentage of all job postings"</span></span>
+<span id="cb77-26"><a href="#cb77-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb77-27"><a href="#cb77-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb77-28"><a href="#cb77-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb77-29"><a href="#cb77-29" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-51-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="do-jobs-requiring-sql-pay-more" class="level3">
+<h3 class="anchored" data-anchor-id="do-jobs-requiring-sql-pay-more">Do jobs requiring SQL pay more?</h3>
+<p>Do job postings requiring SQL have a higher salary than those that don’t? The data do not support the idea. Job posting that list SQL as a desired skill have a very similar median to those that do not. The salary range is tighter for jobs that include SQL, but there is clearly no salary advantage. There are, however, far more jobs that list SQL than do not, so it is clearly an important skill.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>has_sql,<span class="at">y=</span>salary_mid_point)) <span class="sc">+</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">alpha=</span><span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">linewidth=</span><span class="fl">0.75</span>, <span class="at">fill=</span><span class="st">"transparent"</span>, <span class="at">outlier.shape =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">"Includes SQL"</span>,</span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Salary midpoint"</span>,</span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Comparison of job posting salaries"</span>,</span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle=</span><span class="st">"Salaries (USD) for jobs requiring SQL"</span></span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-52-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="does-r-or-python-command-more-pay" class="level3">
+<h3 class="anchored" data-anchor-id="does-r-or-python-command-more-pay">Does R or Python command more pay?</h3>
+<p>The two primary coding languages used by data analysts are Python and R. These skills are requested in 497 and 351 job listings, respectively. Both languages are included in 288 job listings. Python is the more popular of the two in this dataset. One potential issue here is the bias in this dataset to private companies. R is particularly popular in the medical space and in academia. If those sectors are underrepresented in this dataset, then the results of this comparison may be misleading.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">R =</span> <span class="fu">sum</span>(has_R),</span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Python =</span> <span class="fu">sum</span>(has_python),</span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Both =</span> <span class="fu">sum</span>(has_R<span class="sc">&amp;</span>has_python)</span>
+<span id="cb79-6"><a href="#cb79-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"Language"</span>, <span class="at">values_to =</span> <span class="st">"Jobs"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  Language  Jobs
+  &lt;chr&gt;    &lt;int&gt;
+1 R          350
+2 Python     494
+3 Both       288</code></pre>
+</div>
+</div>
+<p>Filtering out the job postings that list both languages, the salaries of R-only and Python-only jobs can be compared.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">xor</span>(has_python,has_R)) <span class="sc">|&gt;</span> </span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">coding_lang =</span> <span class="fu">if_else</span>(has_python, <span class="st">"Python"</span>, <span class="st">"R"</span>)</span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb81-6"><a href="#cb81-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>coding_lang,<span class="at">y=</span>salary_mid_point)) <span class="sc">+</span></span>
+<span id="cb81-7"><a href="#cb81-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">alpha=</span><span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb81-8"><a href="#cb81-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">linewidth=</span><span class="fl">0.75</span>, <span class="at">fill=</span><span class="st">"transparent"</span>, <span class="at">outlier.shape =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb81-9"><a href="#cb81-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb81-10"><a href="#cb81-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">"Coding language"</span>,</span>
+<span id="cb81-11"><a href="#cb81-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Salary midpoint"</span>,</span>
+<span id="cb81-12"><a href="#cb81-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Comparison of job posting salaries"</span>,</span>
+<span id="cb81-13"><a href="#cb81-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle=</span><span class="st">"Salaries (USD) for jobs requiring R or Python"</span></span>
+<span id="cb81-14"><a href="#cb81-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb81-15"><a href="#cb81-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb81-16"><a href="#cb81-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb81-17"><a href="#cb81-17" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="initial-exploration_files/figure-html/unnamed-chunk-54-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The Python-only jobs have a noticeably higher mean salary and a wider range of salaries in general. The mean for Python-only jobs is about $75.8K while for R-only jobs the mean is about $65.7K</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>df_jobs <span class="sc">|&gt;</span> </span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">xor</span>(has_python,has_R)) <span class="sc">|&gt;</span> </span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">coding_lang =</span> <span class="fu">if_else</span>(has_python, <span class="st">"Python"</span>, <span class="st">"R"</span>)</span>
+<span id="cb82-5"><a href="#cb82-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb82-6"><a href="#cb82-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(salary_mid_point <span class="sc">~</span> coding_lang, <span class="at">data=</span>_) <span class="sc">|&gt;</span> </span>
+<span id="cb82-7"><a href="#cb82-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = salary_mid_point ~ coding_lang, data = mutate(filter(df_jobs, 
+    xor(has_python, has_R)), coding_lang = if_else(has_python, 
+    "Python", "R")))
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-42.34 -16.34  -3.84  12.66  74.16 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    75.840      1.752  43.291  &lt; 2e-16 ***
+coding_langR  -10.429      3.642  -2.863  0.00453 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 25.14 on 266 degrees of freedom
+Multiple R-squared:  0.0299,    Adjusted R-squared:  0.02625 
+F-statistic: 8.198 on 1 and 266 DF,  p-value: 0.004528</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="findings" class="level2">
+<h2 class="anchored" data-anchor-id="findings">Findings</h2>
+</section>
+<section id="summary-and-recommendations" class="level2">
+<h2 class="anchored" data-anchor-id="summary-and-recommendations">Summary and recommendations</h2>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
