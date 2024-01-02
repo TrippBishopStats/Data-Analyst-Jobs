@@ -24,7 +24,7 @@ The Data Analyst Jobs dataset was produced by scraping *Glassdoor.com* data anal
 
 In the initial phase of the analysis, it is important to import the data, take a quick look at the first few records, and then glimpse the dataset to get a better sense of its structure.
 
-```{r}
+```{r read in data}
 #| message: false
 
 df_jobs <- read_csv("data/DataAnalyst.csv")
@@ -33,11 +33,11 @@ head(df_jobs)
 
 Right away we can see that we have a superfluous variable, ...1, and that at least two columns contain "-1". There is a good chance that "-1" is the NA placeholder for this dataset. This will need to be addressed after the initial exploration of the data is complete. There are a several variables that will need to be converted to factors, some nominal and some ordinal. There are also some variables with non-standard names. These should be renamed so that they are easier to work with in the code.
 
-```{r}
+```{r glimpse dataset}
 glimpse(df_jobs)
 ```
 
-Start by renaming the variables and removing the row id variabl, it won't be necessary.
+Start by renaming the variables and removing the row id variable, it won't be necessary.
 
 ```{r rename variables}
 df_jobs <- df_jobs |> clean_names() |> select(-x1)
@@ -51,7 +51,7 @@ The `size`, `type_of_ownership`, `industry`, `sector`, and `revenue` variables a
 
 This field contains categorical data about the size of the company listing the job.
 
-```{r}
+```{r distinct sizes}
 df_jobs |> distinct(size)
 ```
 
@@ -61,7 +61,7 @@ There is a -1 which indicates missingness. Furthermore, the value of "Unknown" i
 
 This field contains categorical data about the industry of the company listing the job.
 
-```{r}
+```{r distinct industries}
 df_jobs |> distinct(industry)
 ```
 
@@ -71,7 +71,7 @@ There is a -1 which indicates missingness. It will be converted to `NA` during t
 
 This feature indicates the ownership model of the company listing the job.
 
-```{r}
+```{r distinct ownership types}
 df_jobs |> distinct(type_of_ownership)
 ```
 
@@ -81,7 +81,7 @@ In addition to -1, `type_of_ownership` has a value of "Unknown". These will need
 
 `sector` is related to the `industry` feature but is more general.
 
-```{r}
+```{r distinct sectors}
 df_jobs |> distinct(sector)
 ```
 
@@ -91,7 +91,7 @@ In addition to -1, `sector` has a value of "Unknown". These will need to be clea
 
 This is a categorical feature that indicates how much revenue the company listing the job has reported. The levels of this feature are not of uniform width.
 
-```{r}
+```{r distinct revenue}
 df_jobs |> distinct(revenue)
 ```
 
@@ -103,17 +103,13 @@ The remaining features will need to be examined for missingness, although they w
 
 ### `founded`
 
-```{r}
-df_jobs |> distinct(founded) |> arrange(founded)
-```
-
-`founded` is a numeric variable, but does have -1 as a value.
+This feature contains the year the company was founded. It will not be used in this analysis and will be dropped from the dataset.
 
 ### `rating`
 
 `rating` is a numeric variable that appears to have a valid range of 1 to 5.
 
-```{r}
+```{r distinct ratings}
 df_jobs |> distinct(rating) |> arrange(rating)
 ```
 
@@ -123,7 +119,7 @@ df_jobs |> distinct(rating) |> arrange(rating)
 
 This feature indicates the city and state where the job is located. It contains two pieces of data, the city and state, so in order to make the data tidy, this field will be broken up into two new fields, `city` and `state`.
 
-```{r}
+```{r distinct locations}
 df_jobs |> distinct(location) |> arrange(location)
 ```
 
@@ -133,15 +129,11 @@ df_jobs |> distinct(location) |> arrange(location)
 
 This feature contains information about where the headquarters of the listing company is located. It will not be used in the analysis and will be dropped.
 
-```{r}
-df_jobs |> distinct(headquarters) |> arrange(headquarters)
-```
-
 ### `salary_estimate`
 
 This feature contain the salary range of the job listing reported in thousands of dollars.
 
-```{r}
+```{r distinct salary estimates}
 df_jobs |> distinct(salary_estimate) |> arrange(salary_estimate)
 ```
 
@@ -149,7 +141,9 @@ df_jobs |> distinct(salary_estimate) |> arrange(salary_estimate)
 
 ### `company_name`
 
-```{r}
+The name of the company.
+
+```{r distinct company names}
 df_jobs |> distinct(company_name) |> arrange(company_name)
 ```
 
@@ -168,14 +162,11 @@ df_jobs <- df_jobs |>
                   replace=list(
                     salary_estimate = "-1",
                     rating = -1,
-                    headquarters = -1,
-                    founded = -1,
                     size = c("-1", "Unknown"),
                     type_of_ownership = c("Unknown","-1"),
                     industry = "-1",
                     sector = "-1",
-                    revenue = c("-1", "Unknown / Non-Applicable"),
-                    competitors = "-1"
+                    revenue = c("-1", "Unknown / Non-Applicable")
                   )
   )
 ```
@@ -198,7 +189,9 @@ df_jobs <- df_jobs |>
   )
 ```
 
-```{r }
+Now that the content of `size` and `revenue` have been abbreviated, we can convert these features and others from character to factors. In addition, 3 features will be dropped as they will not play a role in the analysis: `competitors`, `founded`, and `headquarters`.
+
+```{r creating factors}
 df_jobs <- df_jobs |> 
   mutate(
     # make industry, sector, any type_of_ownership nominal factors
@@ -227,14 +220,16 @@ df_jobs <- df_jobs |>
                        "$2 to $5B",
                        "$5 to $10B",
                        "$10+B")
-  )
+  ) |> 
+  # drop features that will not be used in the analysis
+  select(-c(competitors, founded, headquarters))
 ```
 
 ## Explore missing values
 
 To begin, the `vis_dat` function from the `visdat` package is used to get a quick look at where missing values are and roughly how frequently they occur in each variable.
 
-```{r}
+```{r visualising missingness}
 vis_dat(df_jobs)
 ```
 
@@ -244,20 +239,6 @@ Before focusing on a specific variable, the percentage of complete observations 
 
 ```{r}
 pct_complete_case(df_jobs)
-```
-
-Less than 20% of the observations are complete, but the `competitors` variable plays very big role in this.
-
-```{r}
-pct_complete(df_jobs$competitors)
-```
-
-Almost 80% of the observations have a missing value for `competitors`, so it is going to have a big influence on the percentage of complete observations.
-
-```{r}
-df_jobs |> 
-  select(-competitors) |> 
-  pct_complete_case()
 ```
 
 If we exclude the variable, the number of complete observations increases to 53%.
@@ -338,16 +319,11 @@ df_jobs |>
   count()
 ```
 
-```{r}
-df_jobs <- df_jobs |> 
-  select(-c(competitors, founded, headquarters))
-```
-
 ## Creating additional features
 
 Having a salary range for a given job is useful, but plotting ranges in large numbers will be cumbersome. To get around this problem, a salary mid-point feature, `salary_mid_point` will be generated for each job posting. In addition, to make analysis easier, the location feature will be split into two new features, `city` and `state`. This will allow for `group by` statements to be written that will allow for regional analyses to be made.
 
-```{r}
+```{r creating salary city and state features}
 df_jobs <- df_jobs |>
   # extract the salary range into two new variables
   extract(salary_estimate, 
@@ -397,13 +373,13 @@ df_jobs |>
 ```
 
 ```{r}
-job_filter <- c("Data Analyst", "Data\\s?\\/\\s?\\w+ Analyst")
+job_filter <- c("Data Analyst", "Data\\s?\\/\\s?\\w+\\sAnalyst")
 
 df_jobs <- df_jobs |> 
   filter(str_detect(job_title, paste(job_filter, collapse = '|')))
 ```
 
-This reduces the number of job postings to 1677, which is 74.5% of the original postings.
+This reduces the number of job postings to 1661, which is 73.7% of the original postings.
 
 Now that we have eliminated job postings that are likely not data analyst positions, we can focus on determining data analyst tools are included in each posting. To do this, a set of logical features will be added, one for each tool. The tools listed are ones that are commonly used by data analysts.
 
@@ -443,13 +419,6 @@ df_jobs |>
 ```
 While the data isn't normally distributed, it is pretty close. There is a positive skew to the data. That is not surprising.
 
-There is an observation that is missing salary. Since it is a single observations, it will be dropped from the dataset.
-
-```{r}
-df_jobs <- df_jobs |> 
-  filter(!is.na(salary_mid_point))
-```
-
 ### `state`
 
 The plot of job postings by state does not reveal any issues with the factor level. The state codes all look correct. The distribution of jobs does raise some questions. While it is not surprising that both California and Texas have a lot of job postings, the very small number in states like Georgia is surprising. More research would need to be conducted to determine why this might be the case. The source of the data does not indicate the methods for collecting the data.
@@ -462,7 +431,8 @@ df_jobs |>
     labs(
       x=element_blank(),
       y="Job count",
-      title="Data analyst job posting count by state"
+      title="California, Texas, and New York lead in data analyst postings",
+      caption="Source: Glassdoor.com"
     )
 ```
 
@@ -472,6 +442,7 @@ While about 10% of the job postings do not disclose the size of the organisation
 
 ```{r}
 df_jobs |> 
+  filter(!is.na(size)) |> 
   ggplot(aes(x=fct_rev(size))) +
   geom_bar(fill=default_fill_colour) +
   coord_flip() +
@@ -491,13 +462,14 @@ The `type_of_ownership` suggests that the data from Glassdoor.com is not a repre
 
 ```{r}
 df_jobs |> 
+  filter(!is.na(type_of_ownership)) |> 
   ggplot(aes(x=fct_rev(fct_infreq(type_of_ownership)))) +
   geom_bar(fill=default_fill_colour) +
   coord_flip() +
   labs(
     x=element_blank(),
     y="Job posting count",
-    title="Data analyst job postings by type of ownership"
+    title="Private companies dominate data analyst job postings"
   ) +
   theme(
     plot.title.position = "plot"
@@ -534,6 +506,7 @@ df_jobs |>
     plot.title.position = "plot"
   )
 ```
+
 There are a few dominant sectors in this dataset and large number of observations that are missing the sector feature. The two leading sectors are Information Technology and Business Services. Finance and Health Care are the next largest categories.
 
 ### `rating`
@@ -602,11 +575,17 @@ df_jobs |>
 There is only a very weak positive correlation between `rating` and `salary_mid_point`, indicating that compensation isn't a significant factor in an organisation's rating. It also means that choosing an organisation because of how well rated it is will not translate into a higher salary, if there is a linear relationship between `rating` and `salary_mid_point`. There is no obvious trend, linear or nonlinear in the plot below.
 
 ```{r}
+#| message: false
 df_jobs |> 
   filter(!is.na(rating)) |> 
   ggplot(aes(x=rating,y=salary_mid_point)) +
-  geom_jitter(alpha=0.7) +
-  geom_smooth(method = "lm")
+  geom_jitter(alpha=0.4) +
+  geom_smooth(method = "lm") +
+  labs(
+    x="Rating",
+    y="Salary midpoint (USD)",
+    title="Salary not correlated with company rating"
+  )
 ```
 The correlation coefficient is quite small, but positive.
 
