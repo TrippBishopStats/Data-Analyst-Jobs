@@ -13,7 +13,11 @@ library(janitor)
 library(visdat)
 library(naniar)
 library(gt)
-theme_set(theme_minimal())
+
+my_theme <- theme_minimal() + theme(
+  plot.title.position = "plot"
+)
+theme_set(my_theme)
 source("scripts/helper-functions.R")
 default_fill_colour <- "#1f63b4"
 ```
@@ -343,23 +347,6 @@ df_jobs <- df_jobs |>
   )
 ```
 
-## Is the following analysis really needed?
-
-To understand how complete each job posting is, we can use the `naniar` packages `miss_case_summary` function to count the number of missing features in each posting and from this count, the completeness of each posting can be computed.
-
-```{r}
-df_miss_count <- df_jobs |> miss_case_summary() |> select(case,pct_miss)
-
-df_jobs <- df_jobs |> 
-  mutate(
-    case = row_number()
-  ) |> 
-  inner_join(df_miss_count, by="case") |> 
-  select(-case)
-
-rm(df_miss_count)
-```
-
 ### Creating job attributes
 
 A review of the job titles of the postings shows that not all of the positions are for data analysts. The job postings will be filtered to keep postings that meet the following rules:
@@ -383,7 +370,7 @@ This reduces the number of job postings to 1661, which is 73.7% of the original 
 
 Now that we have eliminated job postings that are likely not data analyst positions, we can focus on determining data analyst tools are included in each posting. To do this, a set of logical features will be added, one for each tool. The tools listed are ones that are commonly used by data analysts.
 
-```{r}
+```{r create technology features}
 df_jobs <- df_jobs |>
   mutate(
     has_sql = if_else(str_detect(job_description, "\\bSQL\\b"), TRUE, FALSE),
@@ -394,6 +381,26 @@ df_jobs <- df_jobs |>
     has_spark = if_else(str_detect(job_description, "\\b[S|s]park\\b"), TRUE, FALSE),
     has_powerbi = if_else(str_detect(job_description, "\\b[P|p]ower\\s?BI\\b"), TRUE, FALSE),
     has_sheets = if_else(str_detect(job_description, "\\b[G|g]oogle [S|s]heets\\b"), TRUE, FALSE)
+  )
+```
+
+### Education requirements
+It is not uncommon for a position to require post secondary or even post graduate education. The data do not contain explicit features that indicated the required education level of a position, but this information is listed in some of the job postings. We can engineer a new feature that indicates the level of education required for a position with a factor. The levels of the factor will be: `Bachelor's`, `Master's`, and `No specified`. We will perform a simple keyword search of the `job_description` feature to try to identify education requirements in job postings. A more sophisticated approach would be to use a large language model to analyse job descriptions, but that is beyond the scope of this analysis.
+
+```{r create education feature}
+df_jobs <- df_jobs |>
+  mutate(
+    education = fct_rev(
+      as_factor(
+        case_when(
+          str_detect(job_description, "Bachelor") ~ "Bachelor's",
+          # We don't want to over select on Master so be specific
+          str_detect(job_description, "Masters") ~ "Master's", 
+          str_detect(job_description, "Master's") ~ "Master's",
+          .default = "No specified"
+        )
+      )
+    )
   )
 ```
 
@@ -411,11 +418,7 @@ df_jobs |>
     x="Salary mid point",
     y="Count",
     title="Distribution of job posting salary"
-  ) +
-  theme(
-    plot.title.position = "plot"
   )
-
 ```
 While the data isn't normally distributed, it is pretty close. There is a positive skew to the data. That is not surprising.
 
@@ -450,9 +453,6 @@ df_jobs |>
     x=element_blank(),
     y="Job posting count",
     title="Data analyst job postings by organisation size"
-  ) +
-  theme(
-    plot.title.position = "plot"
   )
 ```
 
@@ -470,9 +470,6 @@ df_jobs |>
     x=element_blank(),
     y="Job posting count",
     title="Private companies dominate data analyst job postings"
-  ) +
-  theme(
-    plot.title.position = "plot"
   )
 ```
 
@@ -501,9 +498,6 @@ df_jobs |>
     y="Job posting count",
     title="IT and Business Services are leading sectors for data analyst positions",
     caption="Source: Glassdoor.com"
-  ) +
-  theme(
-    plot.title.position = "plot"
   )
 ```
 
@@ -523,9 +517,6 @@ df_jobs |>
     y="Count",
     title="Company ratings follow a roughly normal distrbution",
     caption="Source: Glassdoor.com"
-  ) +
-  theme(
-    plot.title.position = "plot"
   )
 ```
 ### `salary_mid_point`
@@ -540,33 +531,21 @@ df_jobs |>
     title="Distribution of salary midpoint for all job postings",
     subtitle="Salaries in thousands of USD",
     caption="Source: Glassdoor.com"
-  ) +
-  theme(
-    plot.title.position = "plot"
   )
-
 ```
+### `education`
 
-## Do we need to include this analysis??
-
-**pct_miss**
-
-```{r}
+```{r univariate plot of education}
 df_jobs |> 
-  ggplot(aes(x=pct_miss)) +
-  geom_histogram()
+  ggplot(aes(x=education)) +
+  geom_bar(fill=default_fill_colour) +
+  labs(
+    y="Count",
+    x="Education level",
+    title="Most job postings do no specify a degree requirement"
+  )
 ```
 
-```{r}
-df_jobs |> 
-  group_by(type_of_ownership) |> 
-  summarise(
-    count = n(),
-    med_pct_miss = round(median(pct_miss),1)
-  ) |> 
-  arrange(med_pct_miss) |> 
-  gt()
-```
 
 ## Bivariate analysis
 
@@ -670,6 +649,37 @@ df_jobs |>
 ```
 The is one interesting result here, that the Government group is significantly different to the others. The box plots hint at this, and the linear model confirms it at the 95% confidence level.
 
+### `education` vs `salary_mid_point`
+
+```{r}
+df_jobs |> 
+  ggplot(aes(x=education, y=salary_mid_point)) +
+    geom_jitter(alpha=0.4)
+```
+```{r}
+df_jobs |> 
+  lm(salary_mid_point~education, data=_) |> 
+  summary()
+```
+This is a surprising finding. The plotted data *and* the model suggest that job postings that marked as requiring a master's degree make **less** money than those that require only a bachelor's or don't specify. That seems unlikely.
+
+Perhaps the `sector` a job posting is listed in would be instructive.
+
+```{r}
+df_jobs |> 
+  filter(education == "Master's") |> 
+  group_by(sector) |> 
+  summarise(
+    total = n(),
+    med_sal = median(salary_mid_point)
+  )
+```
+This reveals that there is a significant group imbalance in the data. The vast majority of the jobs are listed under Information Technology and so that group dominates. That group also has the second lowest median salary of the 9 groups in the dataset.
+
+After reviewing a number of the job descriptions, it is clear that there is a lot of variability in what is being requested. Some postings simply "prefer" a Master's degree while other require it. Furthermore, the type of Master's degree being requested varies. Some require Statistics/Applied Mathematics, some Compute Science, and other Master's degrees in social sciences.
+
+Given these findings, this feature, as constructed, does not appear to offer any insights into the data. A simple keyword search of the `job_description` field is inadequate to capture the variability of the data in a meaningful way.
+
 ## Popular tools and technologies
 
 An analysis of technology keyword occurrences shows that SQL is the most frequently requested technology skill. SQL appears in 64.8% of all job postings. Other popular skills are Excel, Python, Tableau, and R.
@@ -700,9 +710,6 @@ df_da_tools |>
     y="Percent of all job postings",
     title="SQL & Excel are the most requested skills",
     subtitle="Popularity of standard data analyst tools"
-  ) +
-  theme(
-    plot.title.position = "plot"
   )
 ```
 
@@ -720,11 +727,7 @@ df_jobs |>
     y="Salary midpoint",
     title="Comparison of job posting salaries",
     subtitle="Salaries (USD) for jobs requiring SQL"
-  ) +
-  theme(
-    plot.title.position = "plot"
   )
-  
 ```
 
 ### Does R or Python command more pay?
@@ -757,9 +760,6 @@ df_jobs |>
     y="Salary midpoint",
     title="Comparison of job posting salaries",
     subtitle="Salaries (USD) for jobs requiring R or Python"
-  ) +
-  theme(
-    plot.title.position = "plot"
   )
 ```
 The Python-only jobs have a noticeably higher mean salary and a wider range of salaries in general. The mean for Python-only jobs is about \$75.8K while for R-only jobs the mean is about \$65.7K
@@ -773,7 +773,6 @@ df_jobs |>
   lm(salary_mid_point ~ coding_lang, data=_) |> 
   summary()
 ```
-
 
 ## Findings
 
