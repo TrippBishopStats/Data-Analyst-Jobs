@@ -1,12 +1,16 @@
 ---
-title: "Initial Exploration & Cleaning"
+title: "Exploration, Cleaning, and Analysis"
 author: "Tripp Bishop"
 format: html
-editor: visual
+date: 15 JAN 2023
 ---
 
+## Data Analyst Jobs Dataset
+
+The Data Analyst Jobs dataset was produced by scraping *Glassdoor.com* data analyst job postings. The date that this was done is not known, but the covid-19 pandemic is referenced so a likely lower bound on the date is mid-2020.
+
+
 ```{r setup}
-#| echo: false
 #| message: false
 library(tidyverse)
 library(janitor)
@@ -22,10 +26,6 @@ source("scripts/helper-functions.R")
 default_fill_colour <- "#1f63b4"
 ```
 
-## Data Analyst Jobs Dataset
-
-The Data Analyst Jobs dataset was produced by scraping *Glassdoor.com* data analyst job postings. The date that this was done is not known, but the covid-19 pandemic is referenced so a likely lower bound on the date is mid-2020.
-
 In the initial phase of the analysis, it is important to import the data, take a quick look at the first few records, and then glimpse the dataset to get a better sense of its structure.
 
 ```{r read in data}
@@ -35,13 +35,13 @@ df_jobs <- read_csv("data/DataAnalyst.csv")
 head(df_jobs)
 ```
 
-Right away we can see that we have a superfluous variable, ...1, and that at least two columns contain "-1". There is a good chance that "-1" is the NA placeholder for this dataset. This will need to be addressed after the initial exploration of the data is complete. There are a several variables that will need to be converted to factors, some nominal and some ordinal. There are also some variables with non-standard names. These should be renamed so that they are easier to work with in the code.
+Right away we can see that we have a superfluous variable, `...1`, and that at least two columns contain "-1". It is likely that "-1" is the NA placeholder for this dataset. This will need to be addressed after the initial exploration of the data is complete. There are a several variables that will need to be converted to factors, some nominal and some ordinal. There are also some variables with non-standard names. These should be renamed so that they are easier to work with in the code.
 
 ```{r glimpse dataset}
 glimpse(df_jobs)
 ```
 
-Start by renaming the variables and removing the row id variable, it won't be necessary.
+Begin by renaming the variables and removing the row id variable.
 
 ```{r rename variables}
 df_jobs <- df_jobs |> clean_names() |> select(-x1)
@@ -59,7 +59,7 @@ This field contains categorical data about the size of the company listing the j
 df_jobs |> distinct(size)
 ```
 
-There is a -1 which indicates missingness. Furthermore, the value of "Unknown" is not helpful, so it should be converted to `NA` as well to facilitate analysis.
+There is a -1 which indicates missingness. In addition to "-1", there is the value "Unknown" which will be retained and it will be the standard across all categorical variables. We want to have such a level in our factors so that if we want to perform any statistical test we will not have to contend with `NA` values which will cause the tests problems.
 
 ### `industry`
 
@@ -69,7 +69,7 @@ This field contains categorical data about the industry of the company listing t
 df_jobs |> distinct(industry)
 ```
 
-There is a -1 which indicates missingness. It will be converted to `NA` during the cleaning phase.
+There is a "-1" which indicates missingness. It will be converted to "Unknown" during the cleaning phase.
 
 ### `type_of_ownership`
 
@@ -79,7 +79,7 @@ This feature indicates the ownership model of the company listing the job.
 df_jobs |> distinct(type_of_ownership)
 ```
 
-In addition to -1, `type_of_ownership` has a value of "Unknown". These will need to be cleaned up and converted to `NA` values.
+The feature contains "-1. It will be converted to "Unknown" during the cleaning phase.
 
 ### `sector`
 
@@ -89,7 +89,7 @@ In addition to -1, `type_of_ownership` has a value of "Unknown". These will need
 df_jobs |> distinct(sector)
 ```
 
-In addition to -1, `sector` has a value of "Unknown". These will need to be cleaned up and converted to `NA` values.
+The feature contains "-1. It will be converted to "Unknown" during the cleaning phase.
 
 ### `revenue`
 
@@ -99,7 +99,7 @@ This is a categorical feature that indicates how much revenue the company listin
 df_jobs |> distinct(revenue)
 ```
 
-There is no -1 value in `revenue`, but the value "Unknown / Non-Applicable" is present. This will be converted to `NA` for reasons state earlier.
+There is no -1 value in `revenue`, but the value "Unknown / Non-Applicable" is present. This will be converted to "Unkown" so that it is the same as the other features.
 
 ## Exploring remaining features
 
@@ -143,6 +143,13 @@ df_jobs |> distinct(salary_estimate) |> arrange(salary_estimate)
 
 `salary_estimate` does contain "-1" as a value. Every value also ends with the string "(Glassdoor est.)". In addition to this, the field contains the range from low to high in the formation \$AK - \$BK, where A & B are 2-3 digit integers. This field should be cleaned and then split into `salary_lower_end` and `salary_upper_end` numeric variables.
 
+```{r}
+df_jobs |> 
+  filter(salary_estimate == "-1") |> 
+  count()
+```
+The observation with "-1" for `salary_estimate` will be dropped from the dataset. I will not attempt to impute the value. This is reasonable give that it is only one record. If a substantial number of observations were missing values for this feature we would need to take another course of action. Imputing the values might be possible, but more likely, a new data source would need to be found. 
+
 ### `company_name`
 
 The name of the company.
@@ -155,7 +162,7 @@ The `company_name` feature has many values containing a newline character follow
 
 ## Addressing missing values
 
-The `easy_apply` variable should be a logical field. Rather than having `NA` for FALSE values, simply set all "-1" values to FALSE and all others to TRUE. This will force the `easy_apply` to be a logical variable. Next, the -1 and "Unknown" values can also be mapped to `NA` to complete the task. We can use features of the `naniar` package to understand the missing values much better if they are all set to `NA` rather than a combination of `NA` and "Unknown".
+The `easy_apply` variable should be a logical field. Rather than having `NA` for FALSE values, simply set all "-1" values to `FALSE` and all others to `TRUE`. This will force the `easy_apply` to be a logical variable. Next, the -1 and "Unknown" values can also be mapped to `NA` to complete the task. We can use features of the `naniar` package to understand the missing values much better if they are all set to `NA` rather than a combination of `NA` and "Unknown".
 
 ```{r cleaning missing values}
 df_jobs <- df_jobs |> 
@@ -193,39 +200,13 @@ df_jobs <- df_jobs |>
   )
 ```
 
-Now that the content of `size` and `revenue` have been abbreviated, we can convert these features and others from character to factors. In addition, 3 features will be dropped as they will not play a role in the analysis: `competitors`, `founded`, and `headquarters`.
+## Remove unnecessary features
 
-```{r creating factors}
+3 features will be dropped as they will not play a role in the analysis: `competitors`, `founded`, and `headquarters`.
+
+```{r remove unneeded features}
+# drop features that will not be used in the analysis
 df_jobs <- df_jobs |> 
-  mutate(
-    # make industry, sector, any type_of_ownership nominal factors
-    industry = as_factor(industry),
-    sector = as_factor(sector),
-    type_of_ownership = as_factor(type_of_ownership),
-    # make size and revenue ordinal factors
-    size = fct_relevel(size, 
-                       "1 to 50",
-                       "51 to 200",
-                       "201 to 500",
-                       "501 to 1000",
-                       "1001 to 5000",
-                       "5001 to 10000",
-                       "10000+"),
-    revenue = fct_relevel(revenue, 
-                       "Less than $1M",
-                       "$1 to $5M",
-                       "$5 to $10M",
-                       "$10 to $25M",
-                       "$25 to $50M",
-                       "$50 to $100M",
-                       "$100 to $500M",
-                       "$500M to $1B",
-                       "$1 to $2B",
-                       "$2 to $5B",
-                       "$5 to $10B",
-                       "$10+B")
-  ) |> 
-  # drop features that will not be used in the analysis
   select(-c(competitors, founded, headquarters))
 ```
 
@@ -245,15 +226,7 @@ Before focusing on a specific variable, the percentage of complete observations 
 pct_complete_case(df_jobs)
 ```
 
-If we exclude the variable, the number of complete observations increases to 53%.
-
-First, determine what percentage of the data has a missing value for `revenue`.
-
-```{r}
-pct_miss(df_jobs$revenue)
-```
-
-35% is a significant number. Are there any apparent patterns to the missingness or does it seem to be random?
+First, determine what percentage of the data has a missing value for `revenue`. `r round(pct_miss(df_jobs$revenue), 0)` is a significant proportion of the observations. Are there any apparent patterns to the missingness or does it seem to be random?
 
 ```{r}
 df_jobs |> 
@@ -323,6 +296,45 @@ df_jobs |>
   count()
 ```
 
+## Creating factors
+
+Now that the content of `size` and `revenue` have been abbreviated, we can convert these features and others from character to factors.
+
+```{r creating factors}
+df_jobs <- df_jobs |>
+  mutate(
+    # Convert all of the NA values in the factor features to "Unknown"
+    across(c(size,type_of_ownership,industry,sector,revenue), ~ str_replace_na(., replacement="Unknown") ),
+    # make industry, sector, any type_of_ownership nominal factors
+    industry = as_factor(industry),
+    sector = as_factor(sector),
+    type_of_ownership = as_factor(type_of_ownership),
+    # make size and revenue ordinal factors
+    size = fct_relevel(size, 
+                       "1 to 50",
+                       "51 to 200",
+                       "201 to 500",
+                       "501 to 1000",
+                       "1001 to 5000",
+                       "5001 to 10000",
+                       "10000+"),
+    revenue = fct_relevel(revenue, 
+                       "Less than $1M",
+                       "$1 to $5M",
+                       "$5 to $10M",
+                       "$10 to $25M",
+                       "$25 to $50M",
+                       "$50 to $100M",
+                       "$100 to $500M",
+                       "$500M to $1B",
+                       "$1 to $2B",
+                       "$2 to $5B",
+                       "$5 to $10B",
+                       "$10+B")
+  )
+```
+
+
 ## Creating additional features
 
 Having a salary range for a given job is useful, but plotting ranges in large numbers will be cumbersome. To get around this problem, a salary mid-point feature, `salary_mid_point` will be generated for each job posting. In addition, to make analysis easier, the location feature will be split into two new features, `city` and `state`. This will allow for `group by` statements to be written that will allow for regional analyses to be made.
@@ -385,6 +397,7 @@ df_jobs <- df_jobs |>
 ```
 
 ### Education requirements
+
 It is not uncommon for a position to require post secondary or even post graduate education. The data do not contain explicit features that indicated the required education level of a position, but this information is listed in some of the job postings. We can engineer a new feature that indicates the level of education required for a position with a factor. The levels of the factor will be: `Bachelor's`, `Master's`, and `No specified`. We will perform a simple keyword search of the `job_description` feature to try to identify education requirements in job postings. A more sophisticated approach would be to use a large language model to analyse job descriptions, but that is beyond the scope of this analysis.
 
 ```{r create education feature}
@@ -452,7 +465,8 @@ df_jobs |>
   labs(
     x=element_blank(),
     y="Job posting count",
-    title="Data analyst job postings by organisation size"
+    title="The proportion of jobs is similar across organisation sizes",
+    subtitle="Small organisations are well represented"
   )
 ```
 
@@ -482,7 +496,8 @@ df_jobs |>
   mutate(
     pct_total = round(total/sum(total)*100, 1)
   ) |> 
-  arrange(desc(pct_total))
+  arrange(desc(pct_total)) |> 
+  gt()
 ```
 
 ### `sector`
@@ -521,6 +536,8 @@ df_jobs |>
 ```
 ### `salary_mid_point`
 
+The `salary_mid_point` feature was created from the salary range given in the job posting. It is simply the average of the upper and lower bounds of that range.
+
 ```{r}
 df_jobs |> 
   ggplot(aes(x=salary_mid_point)) +
@@ -535,6 +552,8 @@ df_jobs |>
 ```
 ### `education`
 
+`education` is a factor with three levels created from the occurrence or absence of the terms "Bachelor" and "Masters/Master's" in the `job_description` feature.
+
 ```{r univariate plot of education}
 df_jobs |> 
   ggplot(aes(x=education)) +
@@ -545,9 +564,11 @@ df_jobs |>
     title="Most job postings do no specify a degree requirement"
   )
 ```
-
+There are no mislabeled observations. The relative lack of Master's level job postings is, perhaps, surprising but could result from the fact that jobs without the "Data Analyst" term have already been filtered out of the dataset. It is possible that these jobs were more likely to be for more senior positions. If required, we could investigate by reviewing the filtered data. That investigation is beyond the scope of this analysis.
 
 ## Bivariate analysis
+
+Having looked at univariate data, we will now analyse the relationship between feature pairs of interest.
 
 ### `salary_mid_point` vs `rating`
 
@@ -566,11 +587,14 @@ df_jobs |>
     title="Salary not correlated with company rating"
   )
 ```
-The correlation coefficient is quite small, but positive.
-
 ```{r}
-cor(df_jobs$rating, df_jobs$salary_mid_point, use = "complete.obs")
+#| echo: false
+salary_rating_cor <- round(cor(df_jobs$rating, df_jobs$salary_mid_point, use = "complete.obs"),3)
 ```
+
+
+The correlation coefficient is `r salary_rating_cor` which is quite small. We can say that there is, at best, a very weak positive correlation between `rating` and `salary_mid_point`.
+
 ### `salary_mid_point` vs `size`
 
 Comparing boxplots of `salary_mid_point` vs `size` shows that there is not a significant difference in salaries based on organisation size.
@@ -588,27 +612,24 @@ df_jobs |>
     caption = "Source: Glassdoor.com",
     title="Organisation size has little impact on salary"
   ) +
+  coord_flip() +
   theme(
     legend.position = "none"
   )
 ```
-
-```{r}
-df_jobs |> 
-  filter(!is.na(size)) |> 
-  ggplot(aes(x=salary_mid_point)) +
-  geom_histogram(binwidth = 10, colour="white", fill=default_fill_colour) +
-  facet_wrap(~size)
-```
 We can use a general linear model to compare the `size` groups.
 
 ```{r}
-df_jobs |> 
+lm_size_model <- df_jobs |> 
   filter(!is.na(size)) |>
-  lm(salary_mid_point ~ size, data=_) |> 
+  lm(salary_mid_point ~ size, data=_)
+
+p_value <- compute_p(lm_size_model)
+
+lm_size_model |> 
   summary()
 ```
-This result confirms what we could see in the boxplots. There is no significant difference between the groups. The *p-value* for the test is $p=0.631$ and the estimates for all groups are small and have high *p-values*. 
+This result confirms what we could see in the boxplots. There is no significant difference between the groups. The *p-value* for the test is $p=`r round(p_value, 4)`$ and the estimates for all groups are small and have high *p-values*. 
 
 ### `type_of_ownership` vs `salary_mid_point`
 
@@ -762,7 +783,7 @@ df_jobs |>
     subtitle="Salaries (USD) for jobs requiring R or Python"
   )
 ```
-The Python-only jobs have a noticeably higher mean salary and a wider range of salaries in general. The mean for Python-only jobs is about \$75.8K while for R-only jobs the mean is about \$65.7K
+The Python-only jobs have a noticeably higher mean salary and a wider range of salaries in general. The mean for Python-only jobs is about \$75.8K `r paste("$", 80.0, "K", sep="")` while for R-only jobs the mean is about \$65.7K
 
 ```{r}
 df_jobs |> 
